@@ -14,7 +14,7 @@ typedef struct {
     int buttonPlaylist1_lenght;
     int buttonPlaylist2_height;
     int buttonPlaylist2_lenght;
-    char image_folder [7];
+    char image_folder [8];
 } AppConfig;
 
 // Fonction pour charger la configuration à partir d'un fichier
@@ -35,7 +35,7 @@ int loadConfig(const char *filename, AppConfig *config) {
     fscanf(file, "buttonPlaylist1_lenght: %d\n", config->buttonPlaylist1_lenght);
     fscanf(file, "buttonPlaylist2_height: %d\n", config->buttonPlaylist2_height);
     fscanf(file, "buttonPlaylist2_lenght: %d\n", config->buttonPlaylist2_lenght);
-    fscanf(file, "image_folder: %6s\n", config->image_folder);
+    fscanf(file, "image_folder: %7s\n", config->image_folder);
 
     fclose(file);
     return 0;
@@ -57,7 +57,7 @@ int main() {
         printf("buttonPlaylist1_lenght: %d\n", config.buttonPlaylist1_lenght);
         printf("buttonPlaylist2_height: %d\n", config.buttonPlaylist2_height);
         printf("buttonPlaylist2_lenght: %d\n", config.buttonPlaylist2_lenght);
-        printf("image_folder: %6s\n", config.image_folder);
+        printf("image_folder: %7s\n", config.image_folder);
     }
 
     return 0;

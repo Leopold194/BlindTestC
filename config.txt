@@ -2,10 +2,10 @@ timer: 30
 max_score: 2
 windows_height: 900
 windows_length: 1800
-img_playlist1: "/top_fr.jpg"
-img_playlist2: "/top_world.jpg"
+img_playlist1: /top_fr.jpg"
+img_playlist2: /top_world.jpg"
 buttonPlaylist1_height: 300
 buttonPlaylist1_lenght: 300
 buttonPlaylist2_height: 300
 buttonPlaylist2_lenght: 300
-image_folder: uploads
+image_folder: "uploads
