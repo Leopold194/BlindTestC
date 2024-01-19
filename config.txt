@@ -1,0 +1,4 @@
+timer: 30
+max_score: 2
+windows_height: 900
+windows_length: 1800
