@@ -3,6 +3,7 @@
 #include "get_song.h"
 #include "get_playlist.h"
 #include "quiz_page.h"
+#include "globals.h"
 
 GtkWidget *label;
 
@@ -14,7 +15,7 @@ void launch_game(GtkWidget *widget, gpointer user_data){
     quiz_page(playlist);
 }
 
-int main(int argc, char *argv[]) {
+int menu() {
     GtkWidget *window;
     GtkWidget *vbox;
     GtkWidget *fixed;
@@ -23,9 +24,6 @@ int main(int argc, char *argv[]) {
     GtkWidget *imagePlaylist1;
     GtkWidget *buttonPlaylist2;
     GtkWidget *imagePlaylist2;
-
-    gtk_init(&argc, &argv);
-    gst_init(&argc, &argv);
     
     window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
     gtk_window_set_title(GTK_WINDOW(window), "GTK Example");
@@ -36,7 +34,10 @@ int main(int argc, char *argv[]) {
     fixed = gtk_fixed_new();
     gtk_container_add(GTK_CONTAINER(window), fixed);
 
-    label = gtk_label_new("Choisis la playlist avec laquelle tu veux jouer");
+    gchar welcome_message[256];
+    snprintf(welcome_message, sizeof(welcome_message), "Salut %s ! Choisis la playlist avec laquelle tu veux jouer", currentPlayer);
+
+    label = gtk_label_new(welcome_message);
     gtk_fixed_put(GTK_FIXED(fixed), label, 750, 50);
 
     imagePlaylist1 = gtk_image_new_from_file("uploads/top_fr.jpg");
