@@ -13,8 +13,8 @@ int main(void) {
     }
     
        
-    char *sql = "CREATE TABLE User(id INTEGER PRIMARY KEY, pseudo TEXT, password TEXT, best_score INT DEFAULT NULL);"
-                "INSERT INTO User (pseudo, password, score) VALUES ('Pierre', 'test');";
+    char *sql = "CREATE TABLE User(id INTEGER PRIMARY KEY, pseudo TEXT, password TEXT, best_score INT DEFAULT 0, last_score INT DEFAULT NULL);"
+                "INSERT INTO User (pseudo, password) VALUES ('Leo', '1234');";
 
     if(sqlite3_exec(db, sql, 0, 0, &err_msg) != SQLITE_OK ) {
         fprintf(stderr, "SQL error: %s\n", err_msg);
