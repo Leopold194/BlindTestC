@@ -1,4 +1,5 @@
 #include <gtk/gtk.h>
+#include <gst/gst.h>
 #include <sqlite3.h>
 #include "globals.h"
 #include "menu.h"
@@ -154,6 +155,7 @@ int main(int argc, char *argv[]) {
     GtkWidget *signout_button;
 
     gtk_init(&argc, &argv);
+    gst_init(&argc, &argv);
 
     window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
     gtk_window_set_title(GTK_WINDOW(window), "GTK Example");

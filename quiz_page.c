@@ -87,16 +87,16 @@ void save_score(long int score) {
     }
 
     char sql2[256];
-    if (best_score < score) {
+    if (best_score > score) {
         sprintf(sql2, "UPDATE User SET last_score=?, best_score=? WHERE pseudo=?;");
     } else {
         sprintf(sql2, "UPDATE User SET last_score=? WHERE pseudo=?;");
     }
-
+    
     sqlite3_stmt *query_prepare_update;
     if (sqlite3_prepare_v2(db, sql2, -1, &query_prepare_update, 0) == SQLITE_OK) {
         sqlite3_bind_int(query_prepare_update, 1, score);
-        if (best_score < score) {
+        if (best_score > score) {
             sqlite3_bind_int(query_prepare_update, 2, score);
             sqlite3_bind_text(query_prepare_update, 3, currentPlayer, -1, SQLITE_STATIC);
         } else {
@@ -115,7 +115,6 @@ void save_score(long int score) {
 
     closeDb();
 }
-
 
 void update_button_labels() {
     gtk_button_set_label(GTK_BUTTON(buttonChoice1), title1);
@@ -148,10 +147,17 @@ void update_answers(Playlist *playlist) {
     update_button_labels();
 
     char uri[512];
-    snprintf(uri, sizeof(uri), "file:///home/leo/Documents/PROJET_C/Songs/%lu/%lu.mp3", playlist->id, goodAnswerId);
-    char goodUri[512] = "playbin uri=";
-    strcat(goodUri, uri);
-    pipeline = gst_parse_launch(goodUri, NULL);
+    snprintf(uri, sizeof(uri), "file:///home/leo/Documents/PROJET_C/BlindTestC/Songs/%lu/%lu.mp3", playlist->id, goodAnswerId);
+
+    char goodUri[512];
+    snprintf(goodUri, sizeof(goodUri), "playbin uri=%s", uri);
+
+    GError *error = NULL;
+    pipeline = gst_parse_launch(goodUri, &error);
+    if (!pipeline) {
+        g_print("Erreur lors de la création du pipeline : %s\n", error->message);
+        g_error_free(error);
+    }
     gst_element_set_state(pipeline, GST_STATE_PLAYING);
 }
 

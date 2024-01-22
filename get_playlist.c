@@ -66,7 +66,7 @@ Playlist* init_playlist(unsigned long int id) {
     chunk.size = 0;
 
     char url[256];
-    snprintf(url, sizeof(url), "%s%d", BASE_URL, id);
+    snprintf(url, sizeof(url), "%s%lu", BASE_URL, id);
 
     curl_easy_setopt(curl, CURLOPT_URL, url);
     curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
