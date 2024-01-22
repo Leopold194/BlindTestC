@@ -4,6 +4,7 @@
 #include "globals.h"
 #include "menu.h"
 #include "connect_db.h"
+#include "open_config.h"
 
 GtkWidget *signin_entry_login;
 GtkWidget *signin_entry_pwd;
@@ -140,6 +141,8 @@ void registration(GtkWidget *widget, gpointer data) {
 
 
 int main(int argc, char *argv[]) {
+
+    loadConfig("config.txt");
 
     GtkWidget *window;
     GtkWidget *fixed;

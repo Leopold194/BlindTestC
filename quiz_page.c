@@ -17,7 +17,7 @@ int musicsPassed = 0;
 int original_seconds = 30;
 int seconds;
 int score;
-int max_score = 2;
+int max_score = 20;
 
 GtkWidget *buttonChoice1;
 GtkWidget *buttonChoice2;

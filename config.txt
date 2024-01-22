@@ -1,11 +1,13 @@
-timer: 30
-max_score: 2
-windows_height: 900
-windows_length: 1800
-img_playlist1: /top_fr.jpg"
-img_playlist2: /top_world.jpg"
-buttonPlaylist1_height: 300
-buttonPlaylist1_lenght: 300
-buttonPlaylist2_height: 300
-buttonPlaylist2_lenght: 300
-image_folder: "uploads
+timer=30
+max_score=20
+windows_height=900
+windows_length=1800
+img_playlist1=annees_80.jpg
+img_playlist2=annees_2010.jpg
+image_folder=uploads
+base_url_playlist=https://api.deezer.com/playlist/
+base_url_track=https://api.deezer.com/track/
+database_table_name=User
+songs_path=file:///home/leo/Documents/PROJET_C/BlindTestC/Songs/
+my_ranking_color=#FAD150
+database_name=database.db
