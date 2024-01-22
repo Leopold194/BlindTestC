@@ -2,6 +2,7 @@
 #include <sqlite3.h>
 #include "globals.h"
 #include "menu.h"
+#include "connect_db.h"
 
 GtkWidget *signin_entry_login;
 GtkWidget *signin_entry_pwd;
@@ -14,17 +15,6 @@ gchar *password = NULL;
 gboolean userExists = FALSE;
 gboolean checkUserExist = FALSE;
 
-sqlite3 *db;
-
-int connectDb() {
-    if(sqlite3_open("database.db", &db) != SQLITE_OK) {
-        fprintf(stderr, "Cannot open database: %s\n", sqlite3_errmsg(db));
-        sqlite3_close(db);
-        return 0;
-    }
-    return 1;
-}
-
 void connection(GtkWidget *widget, gpointer data) {
     const gchar *login_text = gtk_entry_get_text(GTK_ENTRY(signin_entry_login));
     const gchar *pwd_text = gtk_entry_get_text(GTK_ENTRY(signin_entry_pwd));
@@ -34,6 +24,12 @@ void connection(GtkWidget *widget, gpointer data) {
 
     if (connectDb() != 1) {
         gtk_label_set_text(GTK_LABEL(errorLabel), "Database connection failed");
+        return;
+    }
+
+    if (sqlite3_exec(db, "BEGIN TRANSACTION", 0, 0, 0) != SQLITE_OK) {
+        gtk_label_set_text(GTK_LABEL(errorLabel), "Failed to begin transaction");
+        closeDb();
         return;
     }
 
@@ -48,8 +44,14 @@ void connection(GtkWidget *widget, gpointer data) {
             if (strcmp(pwd_text, password) == 0) {
                 gtk_label_set_text(GTK_LABEL(errorLabel), "Connexion réussie");
                 strcpy(currentPlayer, login_text);
+
+                sqlite3_exec(db, "COMMIT", 0, 0, 0);
+                sqlite3_finalize(query_prepare);
+                closeDb();
+
                 gtk_widget_destroy(GTK_WIDGET(gtk_widget_get_toplevel(widget)));
                 menu();
+                return;
             } else {
                 gtk_label_set_text(GTK_LABEL(errorLabel), "Pseudo ou Mot de passe incorrect");
             }
@@ -62,8 +64,11 @@ void connection(GtkWidget *widget, gpointer data) {
         gtk_label_set_text(GTK_LABEL(errorLabel), "Failed to execute query");
     }
 
-    sqlite3_close(db);
+    sqlite3_exec(db, "ROLLBACK", 0, 0, 0);
+
+    closeDb();
 }
+
 
 void registration(GtkWidget *widget, gpointer data) {
     const gchar *login_text = gtk_entry_get_text(GTK_ENTRY(signout_entry_login));
@@ -77,17 +82,27 @@ void registration(GtkWidget *widget, gpointer data) {
         return;
     }
 
+    if (sqlite3_exec(db, "BEGIN TRANSACTION", 0, 0, 0) != SQLITE_OK) {
+        gtk_label_set_text(GTK_LABEL(errorLabel), "Failed to begin transaction");
+        closeDb();
+        return;
+    }
+
     sqlite3_stmt *query_prepare;
     if (sqlite3_prepare_v2(db, sql, -1, &query_prepare, 0) == SQLITE_OK) {
         sqlite3_bind_text(query_prepare, 1, login_text, -1, SQLITE_STATIC);
 
         if (sqlite3_step(query_prepare) == SQLITE_ROW) {
             gtk_label_set_text(GTK_LABEL(errorLabel), "Pseudo existant");
+            sqlite3_finalize(query_prepare);
+            sqlite3_exec(db, "ROLLBACK", 0, 0, 0);
+            closeDb();
+            return;
         } else {
-            gtk_label_set_text(GTK_LABEL(errorLabel), "Inscription réussie");
+            sqlite3_finalize(query_prepare);
             
             char sql2[200];
-            sprintf(sql2, "INSERT INTO User(pseudo, password) VALUES ('%s', '%s');", login_text, pwd_text);
+            sprintf(sql2, "INSERT INTO User(pseudo, password) VALUES (?, ?);");
             
             sqlite3_stmt *query_prepare_insert;
             if (sqlite3_prepare_v2(db, sql2, -1, &query_prepare_insert, 0) == SQLITE_OK) {
@@ -97,8 +112,14 @@ void registration(GtkWidget *widget, gpointer data) {
                 if (sqlite3_step(query_prepare_insert) == SQLITE_DONE) {
                     gtk_label_set_text(GTK_LABEL(errorLabel), "Inscription réussie");
                     strcpy(currentPlayer, login_text);
+                    sqlite3_finalize(query_prepare_insert);
+                    
+                    sqlite3_exec(db, "COMMIT", 0, 0, 0);
+                    closeDb();
+                    
                     gtk_widget_destroy(GTK_WIDGET(gtk_widget_get_toplevel(widget)));
                     menu();
+                    return;
                 } else {
                     gtk_label_set_text(GTK_LABEL(errorLabel), "Échec de l'insertion");
                 }
@@ -107,14 +128,14 @@ void registration(GtkWidget *widget, gpointer data) {
                 gtk_label_set_text(GTK_LABEL(errorLabel), "Échec de préparation de la requête d'insertion");
             }
         }
-        sqlite3_finalize(query_prepare);
     } else {
         gtk_label_set_text(GTK_LABEL(errorLabel), "Failed to execute query");
     }
 
-    sqlite3_close(db);
-}
+    sqlite3_exec(db, "ROLLBACK", 0, 0, 0);
 
+    closeDb();
+}
 
 
 int main(int argc, char *argv[]) {

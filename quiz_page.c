@@ -4,6 +4,8 @@
 #include <unistd.h>
 #include "get_song.h"
 #include "get_playlist.h"
+#include "globals.h"
+#include "connect_db.h"
 
 char title1[256];
 char title2[256];
@@ -37,6 +39,84 @@ time_t endTime;
 gboolean time_handler(GtkWidget *label);
 gboolean end_timer_callback(gpointer user_data);
 
+void save_score(long int score) {
+    long int best_score;
+
+    char sql[200];
+    sprintf(sql, "SELECT best_score FROM User WHERE pseudo=?;");
+
+    if (connectDb() != 1) {
+        fprintf(stderr, "Database connection failed");
+        return;
+    }
+
+    if (sqlite3_exec(db, "BEGIN TRANSACTION", 0, 0, 0) != SQLITE_OK) {
+        fprintf(stderr, "Failed to begin transaction");
+        closeDb();
+        return;
+    }
+
+    sqlite3_stmt *query_prepare;
+    if (sqlite3_prepare_v2(db, sql, -1, &query_prepare, 0) == SQLITE_OK) {
+        sqlite3_bind_text(query_prepare, 1, currentPlayer, -1, SQLITE_STATIC);
+
+        if (sqlite3_step(query_prepare) == SQLITE_ROW) {
+            best_score = sqlite3_column_int(query_prepare, 0);
+        }
+        sqlite3_finalize(query_prepare);
+    } else {
+        fprintf(stderr, "Failed to execute query");
+        sqlite3_exec(db, "ROLLBACK", 0, 0, 0);
+        closeDb();
+        return;
+    }
+
+    sqlite3_exec(db, "COMMIT", 0, 0, 0);
+
+    closeDb();
+
+    if (connectDb() != 1) {
+        fprintf(stderr, "Database connection failed");
+        return;
+    }
+
+    if (sqlite3_exec(db, "BEGIN TRANSACTION", 0, 0, 0) != SQLITE_OK) {
+        fprintf(stderr, "Failed to begin transaction");
+        closeDb();
+        return;
+    }
+
+    char sql2[256];
+    if (best_score < score) {
+        sprintf(sql2, "UPDATE User SET last_score=?, best_score=? WHERE pseudo=?;");
+    } else {
+        sprintf(sql2, "UPDATE User SET last_score=? WHERE pseudo=?;");
+    }
+
+    sqlite3_stmt *query_prepare_update;
+    if (sqlite3_prepare_v2(db, sql2, -1, &query_prepare_update, 0) == SQLITE_OK) {
+        sqlite3_bind_int(query_prepare_update, 1, score);
+        if (best_score < score) {
+            sqlite3_bind_int(query_prepare_update, 2, score);
+            sqlite3_bind_text(query_prepare_update, 3, currentPlayer, -1, SQLITE_STATIC);
+        } else {
+            sqlite3_bind_text(query_prepare_update, 2, currentPlayer, -1, SQLITE_STATIC);
+        }
+        if (sqlite3_step(query_prepare_update) != SQLITE_DONE) {
+            fprintf(stderr, "Échec de l'enregistrement : %s\n", sqlite3_errmsg(db));
+        }
+        sqlite3_finalize(query_prepare_update);
+    } else {
+        fprintf(stderr, "Échec de préparation de la requête d'enregistrement");
+        sqlite3_exec(db, "ROLLBACK", 0, 0, 0);
+    }
+
+    sqlite3_exec(db, "COMMIT", 0, 0, 0);
+
+    closeDb();
+}
+
+
 void update_button_labels() {
     gtk_button_set_label(GTK_BUTTON(buttonChoice1), title1);
     gtk_button_set_label(GTK_BUTTON(buttonChoice2), title2);
@@ -52,6 +132,7 @@ void update_answers(Playlist *playlist) {
     if (pipeline != NULL) {
         gst_element_set_state(pipeline, GST_STATE_NULL);
         gst_object_unref(pipeline);
+        pipeline = NULL;
     }
 
     srand((unsigned int)time(NULL));
@@ -104,6 +185,7 @@ void check_answer(GtkWidget *widget, gpointer user_data) {
             time(&endTime);
             long int elapsedTime = difftime(endTime, startTime);
             g_print("Temps écoulé : %ld secondes\n", elapsedTime);
+            save_score(elapsedTime);
         }
     } else {
         strcpy(text, "Raté ! La bonne réponse était : ");
