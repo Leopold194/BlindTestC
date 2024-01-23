@@ -22,7 +22,7 @@ void connection(GtkWidget *widget, gpointer data) {
     const gchar *pwd_text = gtk_entry_get_text(GTK_ENTRY(signin_entry_pwd));
 
     char sql[200];
-    sprintf(sql, "SELECT password FROM User WHERE pseudo=?;");
+    sprintf(sql, "SELECT password FROM %s WHERE pseudo=?;", config->database_table_name);
 
     if (connectDb() != 1) {
         gtk_label_set_text(GTK_LABEL(errorLabel), "Database connection failed");
@@ -77,7 +77,7 @@ void registration(GtkWidget *widget, gpointer data) {
     const gchar *pwd_text = gtk_entry_get_text(GTK_ENTRY(signout_entry_pwd));
 
     char sql[200];
-    sprintf(sql, "SELECT * FROM User WHERE pseudo=?;");
+    sprintf(sql, "SELECT * FROM %s WHERE pseudo=?;", config->database_table_name);
 
     if (connectDb() != 1) {
         gtk_label_set_text(GTK_LABEL(errorLabel), "Database connection failed");
@@ -104,7 +104,7 @@ void registration(GtkWidget *widget, gpointer data) {
             sqlite3_finalize(query_prepare);
             
             char sql2[200];
-            sprintf(sql2, "INSERT INTO User(pseudo, password) VALUES (?, ?);");
+            sprintf(sql2, "INSERT INTO %s(pseudo, password) VALUES (?, ?);", config->database_table_name);
             
             sqlite3_stmt *query_prepare_insert;
             if (sqlite3_prepare_v2(db, sql2, -1, &query_prepare_insert, 0) == SQLITE_OK) {
@@ -161,10 +161,10 @@ int main(int argc, char *argv[]) {
     gst_init(&argc, &argv);
 
     window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-    gtk_window_set_title(GTK_WINDOW(window), "GTK Example");
+    gtk_window_set_title(GTK_WINDOW(window), "Connexion");
     gtk_container_set_border_width(GTK_CONTAINER(window), 10);
     gtk_window_set_position(GTK_WINDOW(window), GTK_WIN_POS_CENTER);
-    gtk_widget_set_size_request(window, 1800, 900);
+    gtk_widget_set_size_request(window, config->windows_length, config->windows_height);
 
     fixed = gtk_fixed_new();
     gtk_container_add(GTK_CONTAINER(window), fixed);

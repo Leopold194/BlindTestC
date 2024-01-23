@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include "globals.h"
 #include "connect_db.h"
+#include "open_config.h"
 
 GtkWidget *tree_view;
 int callback(void *data, int argc, char **argv, char **col_names);
@@ -12,7 +13,7 @@ static void render_background(GtkTreeViewColumn *column, GtkCellRenderer *render
     gtk_tree_model_get(model, iter, 0, &pseudo, -1);
     if (strcmp(pseudo, currentPlayer) == 0) {
         GdkRGBA color;
-        gdk_rgba_parse(&color, "#FAD150"); 
+        gdk_rgba_parse(&color, config->my_ranking_color); 
         g_object_set(renderer, "cell-background-rgba", &color, NULL);
     } else {
         g_object_set(renderer, "cell-background-rgba", NULL, NULL);
@@ -25,10 +26,10 @@ int leaderboard() {
     GtkWidget *fixed;
 
     window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-    gtk_window_set_title(GTK_WINDOW(window), "GTK Example");
+    gtk_window_set_title(GTK_WINDOW(window), "Classement");
     gtk_container_set_border_width(GTK_CONTAINER(window), 10);
     gtk_window_set_position(GTK_WINDOW(window), GTK_WIN_POS_CENTER);
-    gtk_widget_set_size_request(window, 1800, 900);
+    gtk_widget_set_size_request(window, config->windows_length, config->windows_height);
 
     fixed = gtk_fixed_new();
     gtk_container_add(GTK_CONTAINER(window), fixed);
@@ -64,7 +65,8 @@ int leaderboard() {
     }
 
     char *err_msg = 0;
-    char *sql = "SELECT pseudo, best_score FROM User ORDER BY best_score ASC;";
+    char sql[200];
+    sprintf(sql, "SELECT pseudo, best_score FROM %s ORDER BY best_score ASC;", config->database_table_name);
 
     if (sqlite3_exec(db, sql, callback, list_store, &err_msg) != SQLITE_OK) {
         fprintf(stderr, "Failed to select data\n");

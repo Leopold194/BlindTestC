@@ -38,6 +38,10 @@ int loadConfig(const char *filename) {
                 strncpy(config->img_playlist1, value, sizeof(config->img_playlist1));
             } else if (strcmp(key, "img_playlist2") == 0) {
                 strncpy(config->img_playlist2, value, sizeof(config->img_playlist2));
+            } else if (strcmp(key, "playlist_id1") == 0) {
+                config->playlist_id1 = strtoul(value, NULL, 10);
+            } else if (strcmp(key, "playlist_id2") == 0) {
+                config->playlist_id2 = strtoul(value, NULL, 10);
             } else if (strcmp(key, "image_folder") == 0) {
                 strncpy(config->image_folder, value, sizeof(config->image_folder));
             } else if (strcmp(key, "base_url_playlist") == 0) {

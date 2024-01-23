@@ -3,6 +3,7 @@
 
 #include <stddef.h>
 
+void initialize_variables();
 void update_button_labels();
 void update_answers(Playlist *playlist);
 int quiz_page(Playlist *playlist);

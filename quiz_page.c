@@ -6,6 +6,7 @@
 #include "get_playlist.h"
 #include "globals.h"
 #include "connect_db.h"
+#include "open_config.h"
 
 char title1[256];
 char title2[256];
@@ -14,10 +15,10 @@ char title4[256];
 int goodAnswer;
 int goodAnswerId;
 int musicsPassed = 0;
-int original_seconds = 30;
+int original_seconds;
 int seconds;
 int score;
-int max_score = 20;
+int max_score;
 
 GtkWidget *buttonChoice1;
 GtkWidget *buttonChoice2;
@@ -39,11 +40,16 @@ time_t endTime;
 gboolean time_handler(GtkWidget *label);
 gboolean end_timer_callback(gpointer user_data);
 
+void initialize_variables() {
+    original_seconds = config->timer;
+    max_score = config->max_score;
+}
+
 void save_score(long int score) {
     long int best_score;
 
     char sql[200];
-    sprintf(sql, "SELECT best_score FROM User WHERE pseudo=?;");
+    sprintf(sql, "SELECT best_score FROM %s WHERE pseudo=?;", config->database_table_name);
 
     if (connectDb() != 1) {
         fprintf(stderr, "Database connection failed");
@@ -88,9 +94,9 @@ void save_score(long int score) {
 
     char sql2[256];
     if (best_score > score) {
-        sprintf(sql2, "UPDATE User SET last_score=?, best_score=? WHERE pseudo=?;");
+        sprintf(sql2, "UPDATE %s SET last_score=?, best_score=? WHERE pseudo=?;", config->database_table_name);
     } else {
-        sprintf(sql2, "UPDATE User SET last_score=? WHERE pseudo=?;");
+        sprintf(sql2, "UPDATE %s SET last_score=? WHERE pseudo=?;", config->database_table_name);
     }
     
     sqlite3_stmt *query_prepare_update;
@@ -146,13 +152,20 @@ void update_answers(Playlist *playlist) {
 
     update_button_labels();
 
+    char cwd[1024];
+    if (getcwd(cwd, sizeof(cwd)) == NULL) {
+        g_print("getcwd() error");
+        return;
+    }
+
     char uri[512];
-    snprintf(uri, sizeof(uri), "file:///home/leo/Documents/PROJET_C/BlindTestC/Songs/%lu/%lu.mp3", playlist->id, goodAnswerId);
+    snprintf(uri, sizeof(uri), "file://%s/%s%lu/%lu.mp3", cwd, config->songs_path, playlist->id, goodAnswerId);
 
     char goodUri[512];
     snprintf(goodUri, sizeof(goodUri), "playbin uri=%s", uri);
 
     GError *error = NULL;
+
     pipeline = gst_parse_launch(goodUri, &error);
     if (!pipeline) {
         g_print("Erreur lors de la création du pipeline : %s\n", error->message);
@@ -190,7 +203,6 @@ void check_answer(GtkWidget *widget, gpointer user_data) {
         if(score == max_score){
             time(&endTime);
             long int elapsedTime = difftime(endTime, startTime);
-            g_print("Temps écoulé : %ld secondes\n", elapsedTime);
             save_score(elapsedTime);
         }
     } else {
@@ -259,6 +271,8 @@ gboolean time_handler(GtkWidget *label) {
 }
 
 int quiz_page(Playlist *playlist) {
+    initialize_variables();
+
     seconds = original_seconds;
     currentPlaylist = playlist;
 
@@ -267,10 +281,10 @@ int quiz_page(Playlist *playlist) {
     GtkWidget *label;
 
     window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-    gtk_window_set_title(GTK_WINDOW(window), "GTK Example");
+    gtk_window_set_title(GTK_WINDOW(window), "BlindTest");
     gtk_container_set_border_width(GTK_CONTAINER(window), 10);
     gtk_window_set_position(GTK_WINDOW(window), GTK_WIN_POS_CENTER);
-    gtk_widget_set_size_request(window, 1800, 900);
+    gtk_widget_set_size_request(window, config->windows_length, config->windows_height);
 
     fixed = gtk_fixed_new();
     gtk_container_add(GTK_CONTAINER(window), fixed);

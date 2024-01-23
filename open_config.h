@@ -10,6 +10,8 @@ typedef struct {
     int windows_length;
     char img_playlist1[20];
     char img_playlist2[20];
+    unsigned long int playlist_id1;
+    unsigned long int playlist_id2;
     char image_folder[20];
     char base_url_playlist[200];
     char base_url_track[200];

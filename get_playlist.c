@@ -6,8 +6,7 @@
 #include <time.h>
 #include "get_song.h"
 #include "get_playlist.h"
-
-#define BASE_URL "https://api.deezer.com/playlist/"
+#include "open_config.h"
 
 struct MemoryStruct {
     char *memory;
@@ -66,7 +65,7 @@ Playlist* init_playlist(unsigned long int id) {
     chunk.size = 0;
 
     char url[256];
-    snprintf(url, sizeof(url), "%s%lu", BASE_URL, id);
+    snprintf(url, sizeof(url), "%s%lu", config->base_url_playlist, id);
 
     curl_easy_setopt(curl, CURLOPT_URL, url);
     curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);

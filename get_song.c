@@ -4,8 +4,7 @@
 #include <curl/curl.h>
 #include <jansson.h>
 #include "get_song.h"
-
-#define BASE_URL "https://api.deezer.com/track/"
+#include "open_config.h"
 
 size_t write_callback_track(void *contents, size_t size, size_t nmemb, void *userp) {
     size_t realsize = size * nmemb;
@@ -50,7 +49,7 @@ Track* init_track(unsigned long int id) {
     curl = curl_easy_init();
     if (curl) {
         char url[256];
-        snprintf(url, sizeof(url), "%s%d", BASE_URL, track->id);
+        snprintf(url, sizeof(url), "%s%d", config->base_url_track, track->id);
 
         curl_easy_setopt(curl, CURLOPT_URL, url);
         curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);

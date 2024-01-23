@@ -4,6 +4,7 @@
 #include "quiz_page.h"
 #include "globals.h"
 #include "leaderboard.h"
+#include "open_config.h"
 
 GtkWidget *label;
 
@@ -28,10 +29,10 @@ int menu() {
     GtkWidget *leaderboardBtn;
     
     window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-    gtk_window_set_title(GTK_WINDOW(window), "GTK Example");
+    gtk_window_set_title(GTK_WINDOW(window), "Choix de la playlist");
     gtk_container_set_border_width(GTK_CONTAINER(window), 10);
     gtk_window_set_position(GTK_WINDOW(window), GTK_WIN_POS_CENTER);
-    gtk_widget_set_size_request(window, 1800, 900);
+    gtk_widget_set_size_request(window, config->windows_length, config->windows_height);
 
     fixed = gtk_fixed_new();
     gtk_container_add(GTK_CONTAINER(window), fixed);
@@ -42,15 +43,17 @@ int menu() {
     label = gtk_label_new(welcome_message);
     gtk_fixed_put(GTK_FIXED(fixed), label, 750, 50);
 
-    imagePlaylist1 = gtk_image_new_from_file("uploads/annees_80.jpg");
+    char image_path_playlist1[100];
+    snprintf(image_path_playlist1, sizeof(image_path_playlist1), "%s/%s", config->image_folder, config->img_playlist1);
+    imagePlaylist1 = gtk_image_new_from_file(image_path_playlist1);
     buttonPlaylist1 = gtk_button_new();
     gtk_button_set_image(GTK_BUTTON(buttonPlaylist1), imagePlaylist1);
-    //GtkWidget *button2 = gtk_button_new_with_label ("test");
-    //gtk_button_set_always_show_image (GTK_BUTTON(button2), TRUE);
     gtk_fixed_put(GTK_FIXED(fixed), buttonPlaylist1, 500, 100);
     gtk_widget_set_size_request(buttonPlaylist1, 300, 300);
 
-    imagePlaylist2 = gtk_image_new_from_file("uploads/annees_2010.jpg");
+    char image_path_playlist2[100];
+    snprintf(image_path_playlist2, sizeof(image_path_playlist2), "%s/%s", config->image_folder, config->img_playlist2);
+    imagePlaylist2 = gtk_image_new_from_file(image_path_playlist2);
     buttonPlaylist2 = gtk_button_new();
     gtk_button_set_image(GTK_BUTTON(buttonPlaylist2), imagePlaylist2);
     gtk_fixed_put(GTK_FIXED(fixed), buttonPlaylist2, 1000, 100);
@@ -60,10 +63,10 @@ int menu() {
     gtk_fixed_put(GTK_FIXED(fixed), leaderboardBtn, 750, 500);
     gtk_widget_set_size_request(leaderboardBtn, 300, 50);
 
-    unsigned long int playlistId1 = 6312324264;
+    unsigned long int playlistId1 = config->playlist_id1;
     g_signal_connect(buttonPlaylist1, "clicked", G_CALLBACK(launch_game), GSIZE_TO_POINTER(playlistId1));
 
-    unsigned long int playlistId2 = 6312310484;
+    unsigned long int playlistId2 = config->playlist_id2;
     g_signal_connect(buttonPlaylist2, "clicked", G_CALLBACK(launch_game), GINT_TO_POINTER(playlistId2));
 
     g_signal_connect(leaderboardBtn, "clicked", G_CALLBACK(leaderboard), NULL);
