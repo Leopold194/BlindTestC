@@ -7,6 +7,7 @@
 #include "globals.h"
 #include "connect_db.h"
 #include "open_config.h"
+#include "winning_page.h"
 
 char title1[256];
 char title2[256];
@@ -33,12 +34,19 @@ GtkWidget *dialog;
 Playlist *currentPlaylist;
 
 gboolean paused = FALSE;
+guint timer_id = 0;
 
 time_t startTime;
 time_t endTime;
 
 gboolean time_handler(GtkWidget *label);
 gboolean end_timer_callback(gpointer user_data);
+
+void reset_variables() {
+    seconds = 0;
+    score = 0;
+    musicsPassed = 0;
+}
 
 void initialize_variables() {
     original_seconds = config->timer;
@@ -49,7 +57,7 @@ void save_score(long int score) {
     long int best_score;
 
     char sql[200];
-    sprintf(sql, "SELECT best_score FROM %s WHERE pseudo=?;", config->database_table_name);
+    sprintf(sql, "SELECT best_score, last_score FROM %s WHERE pseudo=?;", config->database_table_name);
 
     if (connectDb() != 1) {
         fprintf(stderr, "Database connection failed");
@@ -67,7 +75,8 @@ void save_score(long int score) {
         sqlite3_bind_text(query_prepare, 1, currentPlayer, -1, SQLITE_STATIC);
 
         if (sqlite3_step(query_prepare) == SQLITE_ROW) {
-            best_score = sqlite3_column_int(query_prepare, 0);
+            lastBestScore = sqlite3_column_int(query_prepare, 0);
+            lastScore = sqlite3_column_int(query_prepare, 1);
         }
         sqlite3_finalize(query_prepare);
     } else {
@@ -93,7 +102,7 @@ void save_score(long int score) {
     }
 
     char sql2[256];
-    if (best_score > score) {
+    if (lastBestScore > score) {
         sprintf(sql2, "UPDATE %s SET last_score=?, best_score=? WHERE pseudo=?;", config->database_table_name);
     } else {
         sprintf(sql2, "UPDATE %s SET last_score=? WHERE pseudo=?;", config->database_table_name);
@@ -102,7 +111,7 @@ void save_score(long int score) {
     sqlite3_stmt *query_prepare_update;
     if (sqlite3_prepare_v2(db, sql2, -1, &query_prepare_update, 0) == SQLITE_OK) {
         sqlite3_bind_int(query_prepare_update, 1, score);
-        if (best_score > score) {
+        if (lastBestScore > score) {
             sqlite3_bind_int(query_prepare_update, 2, score);
             sqlite3_bind_text(query_prepare_update, 3, currentPlayer, -1, SQLITE_STATIC);
         } else {
@@ -202,8 +211,18 @@ void check_answer(GtkWidget *widget, gpointer user_data) {
 
         if(score == max_score){
             time(&endTime);
-            long int elapsedTime = difftime(endTime, startTime);
+            elapsedTime = difftime(endTime, startTime);
             save_score(elapsedTime);
+            if (pipeline != NULL) {
+                gst_element_set_state(pipeline, GST_STATE_NULL);
+                gst_object_unref(pipeline);
+                pipeline = NULL;
+            }
+            g_source_remove(timer_id);
+            reset_variables();
+            gtk_widget_destroy(GTK_WIDGET(gtk_widget_get_toplevel(widget)));
+            winning_page();
+            return;
         }
     } else {
         strcpy(text, "Raté ! La bonne réponse était : ");
@@ -242,7 +261,6 @@ gboolean time_handler(GtkWidget *label) {
             gchar timer_seconds[6];
             snprintf(timer_seconds, sizeof(timer_seconds), "00:%02d", seconds);
             gtk_label_set_text(GTK_LABEL(label), timer_seconds);
-
             seconds--;
             return TRUE;
         } else {
@@ -267,7 +285,7 @@ gboolean time_handler(GtkWidget *label) {
             show_info(NULL, NULL, text);
         }
     }
-    return TRUE;
+    return G_SOURCE_CONTINUE;
 }
 
 int quiz_page(Playlist *playlist) {
@@ -333,7 +351,7 @@ int quiz_page(Playlist *playlist) {
 
     g_signal_connect(G_OBJECT(window), "destroy", G_CALLBACK(gtk_main_quit), NULL);
 
-    g_timeout_add_seconds(1, (GSourceFunc) time_handler, (gpointer) timer);
+    timer_id = g_timeout_add_seconds(1, (GSourceFunc) time_handler, (gpointer) timer);
 
     gtk_widget_show_all(window);
 
