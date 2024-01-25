@@ -184,7 +184,6 @@ int main(int argc, char *argv[]) {
     gtk_widget_set_size_request(signin_label, 200, 30);
 
     signin_label_login = gtk_label_new("Pseudo :");
-    gtk_widget_override_font(signin_label_login, font_desc1);
     gtk_fixed_put(GTK_FIXED(fixed), signin_label_login, (config->windows_length)/4  - 100, 150);
     gtk_widget_set_size_request(signin_label_login, 200, 30);
 
@@ -201,7 +200,6 @@ int main(int argc, char *argv[]) {
     signin_entry_pwd = gtk_entry_new();
     gtk_fixed_put(GTK_FIXED(fixed), signin_entry_pwd, (config->windows_length)/4 - 100, 310);
     gtk_widget_set_size_request(signin_entry_pwd, 200, 30);
-
 
     signin_button = gtk_button_new_with_label("Connexion");
     gtk_fixed_put(GTK_FIXED(fixed), signin_button, (config->windows_length)/4 - 100, 380);
