@@ -251,7 +251,6 @@ int main(int argc, char *argv[]) {
     gtk_fixed_put(GTK_FIXED(fixed), signout_entry_pwd, (config->windows_length)/4 *3 - 100, 310);
     gtk_widget_set_size_request(signout_entry_pwd, 200, 30);
     
-
     signout_button = gtk_button_new_with_label("Inscription");
     gtk_fixed_put(GTK_FIXED(fixed), signout_button, (config->windows_length)/4 *3 - 100, 380);
     gtk_widget_set_size_request(signout_button, 200, 30);
@@ -272,6 +271,10 @@ int main(int argc, char *argv[]) {
     gtk_widget_override_color(signout_label_login, GTK_STATE_FLAG_NORMAL, &(GdkRGBA){1, 1, 1, 1});
     gtk_widget_override_color(signout_label_pwd, GTK_STATE_FLAG_NORMAL, &(GdkRGBA){1, 1, 1, 1});
     gtk_widget_override_color(errorLabel, GTK_STATE_FLAG_NORMAL, &(GdkRGBA){1, 1, 1, 1});
+
+    GtkWidget *title = gtk_image_new_from_file("uploads/title.png");
+    gtk_widget_set_size_request(title, 826, 196);
+    gtk_fixed_put(GTK_FIXED(fixed), title, (config->windows_length) / 2 - 413, (config->windows_height) - 220);
 
     gtk_widget_show_all(window);
 
