@@ -1,3 +1,6 @@
+Ce projet contient un jeu de BlindTest, proposant deux playlists (Années 80 & Années 2010), l'objectif est d'avoir 20 points (trouver 20 bonnes réponses) le plus rapidement possible (calculé en secondes).
+
+
 Pour lancer le BlindTest, veuillez executer cette ligne de commande : `gcc -o main main.c get_playlist.c get_song.c quiz_page.c globals.c create_database.c connect_db.c menu.c leaderboard.c open_config.c winning_page.c -ljansson -lcurl -lsqlite3 -Wno-deprecated-declarations $(pkg-config --cflags --libs gtk+-3.0 gstreamer-1.0)`
 
 Les installations nécéssaires : 
