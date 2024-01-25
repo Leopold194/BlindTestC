@@ -32,6 +32,10 @@ int main(int argc, char *argv[]) {
     gtk_container_set_border_width(GTK_CONTAINER(window), 10);
     gtk_window_set_position(GTK_WINDOW(window), GTK_WIN_POS_CENTER);
     gtk_widget_set_size_request(window, 1800, 900);
+    GdkRGBA color;
+    gdk_rgba_parse(&color, "white");
+    gtk_widget_override_background_color(buttonPlaylist1, GTK_STATE_FLAG_NORMAL, &color);
+    gtk_widget_override_background_color(buttonPlaylist2, GTK_STATE_FLAG_NORMAL, &color);
 
     fixed = gtk_fixed_new();
     gtk_container_add(GTK_CONTAINER(window), fixed);
@@ -44,12 +48,15 @@ int main(int argc, char *argv[]) {
     gtk_button_set_image(GTK_BUTTON(buttonPlaylist1), imagePlaylist1);
     //GtkWidget *button2 = gtk_button_new_with_label ("test");
     //gtk_button_set_always_show_image (GTK_BUTTON(button2), TRUE);
-    gtk_fixed_put(GTK_FIXED(fixed), buttonPlaylist1, 500, 100);
     gtk_widget_set_size_request(buttonPlaylist1, 300, 300);
+    gtk_widget_set_halign(buttonPlaylist1, GTK_ALIGN_START);
+    gtk_widget_set_valign(buttonPlaylist1, GTK_ALIGN_END);
 
     imagePlaylist2 = gtk_image_new_from_file("uploads/top_world.jpg");
     buttonPlaylist2 = gtk_button_new();
     gtk_button_set_image(GTK_BUTTON(buttonPlaylist2), imagePlaylist2);
+    gtk_widget_set_halign(buttonPlaylist2, GTK_ALIGN_END);
+    gtk_widget_set_valign(buttonPlaylist2, GTK_ALIGN_START);
     gtk_fixed_put(GTK_FIXED(fixed), buttonPlaylist2, 1000, 100);
     gtk_widget_set_size_request(buttonPlaylist2, 300, 300);
     
