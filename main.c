@@ -159,6 +159,10 @@ int main(int argc, char *argv[]) {
 
     gtk_init(&argc, &argv);
     gst_init(&argc, &argv);
+    PangoFontDescription *font_desc1 = pango_font_description_new();
+    pango_font_description_set_size(font_desc1, 20 * PANGO_SCALE);
+    PangoFontDescription *font_desc = pango_font_description_new();
+    pango_font_description_set_size(font_desc, 30 * PANGO_SCALE);
 
     window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
     gtk_window_set_title(GTK_WINDOW(window), "Connexion");
@@ -175,53 +179,73 @@ int main(int argc, char *argv[]) {
     //Signin
 
     signin_label = gtk_label_new("Connexion :");
-    gtk_fixed_put(GTK_FIXED(fixed), signin_label, 400, 100);
+    gtk_widget_override_font(signin_label, font_desc);
+    gtk_fixed_put(GTK_FIXED(fixed), signin_label, (config->windows_length)/4  - 100, 80);
+    gtk_widget_set_size_request(signin_label, 200, 30);
 
     signin_label_login = gtk_label_new("Pseudo :");
-    gtk_fixed_put(GTK_FIXED(fixed), signin_label_login, 410, 150);
+    gtk_widget_override_font(signin_label_login, font_desc1);
+    gtk_fixed_put(GTK_FIXED(fixed), signin_label_login, (config->windows_length)/4  - 100, 150);
+    gtk_widget_set_size_request(signin_label_login, 200, 30);
 
     signin_entry_login = gtk_entry_new();
-    gtk_fixed_put(GTK_FIXED(fixed), signin_entry_login, 410, 200);
+    gtk_widget_override_font(signin_entry_login, font_desc1);
+    gtk_fixed_put(GTK_FIXED(fixed), signin_entry_login, (config->windows_length)/4 - 100, 200);
     gtk_widget_set_size_request(signin_entry_login, 200, 30);
 
     signin_label_pwd = gtk_label_new("Mot de passe :");
-    gtk_fixed_put(GTK_FIXED(fixed), signin_label_pwd, 390, 260);
+    gtk_widget_override_font(signin_label_pwd, font_desc1);
+    gtk_fixed_put(GTK_FIXED(fixed), signin_label_pwd, (config->windows_length)/4  - 100, 260);
+    gtk_widget_set_size_request(signin_label_pwd, 200, 30);
 
     signin_entry_pwd = gtk_entry_new();
-    gtk_fixed_put(GTK_FIXED(fixed), signin_entry_pwd, 410, 310);
+    gtk_fixed_put(GTK_FIXED(fixed), signin_entry_pwd, (config->windows_length)/4 - 100, 310);
     gtk_widget_set_size_request(signin_entry_pwd, 200, 30);
 
+
     signin_button = gtk_button_new_with_label("Connexion");
-    gtk_fixed_put(GTK_FIXED(fixed), signin_button, 300, 360);
-    gtk_widget_set_size_request(signin_button, 300, 50);
+    gtk_fixed_put(GTK_FIXED(fixed), signin_button, (config->windows_length)/4 - 100, 380);
+    gtk_widget_set_size_request(signin_button, 200, 30);
 
     //Signout
 
     signout_label = gtk_label_new("Inscription :");
-    gtk_fixed_put(GTK_FIXED(fixed), signout_label, 1300, 100);
+    gtk_widget_override_font(signout_label, font_desc);
+    gtk_fixed_put(GTK_FIXED(fixed), signout_label, (config->windows_length)/4 *3 - 100, 80);
+    gtk_widget_set_size_request(signout_label, 200, 30);
 
     signout_label_login = gtk_label_new("Pseudo :");
-    gtk_fixed_put(GTK_FIXED(fixed), signout_label_login, 1290, 150);
+
+    gtk_widget_override_font(signout_label_login, font_desc1);
+    gtk_fixed_put(GTK_FIXED(fixed), signout_label_login, (config->windows_length)/4 *3 - 100, 150);
+    gtk_widget_set_size_request(signout_label_login, 200, 30);
 
     signout_entry_login = gtk_entry_new();
-    gtk_fixed_put(GTK_FIXED(fixed), signout_entry_login, 1290, 200);
+    gtk_fixed_put(GTK_FIXED(fixed), signout_entry_login, (config->windows_length)/4 *3 - 100, 200);
     gtk_widget_set_size_request(signout_entry_login, 200, 30);
 
     signout_label_pwd = gtk_label_new("Mot de passe :");
-    gtk_fixed_put(GTK_FIXED(fixed), signout_label_pwd, 1310, 260);
+    gtk_widget_override_font(signout_label_pwd, font_desc1);
+    gtk_fixed_put(GTK_FIXED(fixed), signout_label_pwd, (config->windows_length)/4 *3 - 100, 260);
+    gtk_widget_set_size_request(signout_label_pwd, 200, 30);
 
     signout_entry_pwd = gtk_entry_new();
-    gtk_fixed_put(GTK_FIXED(fixed), signout_entry_pwd, 1290, 310);
+    gtk_fixed_put(GTK_FIXED(fixed), signout_entry_pwd, (config->windows_length)/4 *3 - 100, 310);
     gtk_widget_set_size_request(signout_entry_pwd, 200, 30);
+    
 
     signout_button = gtk_button_new_with_label("Inscription");
-    gtk_fixed_put(GTK_FIXED(fixed), signout_button, 1100, 360);
-    gtk_widget_set_size_request(signout_button, 300, 50);
+    gtk_fixed_put(GTK_FIXED(fixed), signout_button, (config->windows_length)/4 *3 - 100, 380);
+    gtk_widget_set_size_request(signout_button, 200, 30);
 
     //Error
 
     errorLabel = gtk_label_new("");
-    gtk_fixed_put(GTK_FIXED(fixed), errorLabel, 770, 500);
+    gtk_widget_set_size_request(errorLabel, 300, 20);
+    gtk_fixed_put(GTK_FIXED(fixed), errorLabel, ((config->windows_length/2) - 150), (config->windows_height /4 - 50 ));
+    PangoFontDescription *font_desc3 = pango_font_description_new();
+            pango_font_description_set_size(font_desc3, 30 * PANGO_SCALE);
+            gtk_widget_override_font(errorLabel, font_desc3);
 
     gtk_widget_override_color(signin_label, GTK_STATE_FLAG_NORMAL, &(GdkRGBA){1, 1, 1, 1});
     gtk_widget_override_color(signin_label_login, GTK_STATE_FLAG_NORMAL, &(GdkRGBA){1, 1, 1, 1});
