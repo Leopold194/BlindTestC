@@ -25,12 +25,12 @@ void connection(GtkWidget *widget, gpointer data) {
     sprintf(sql, "SELECT password FROM %s WHERE pseudo=?;", config->database_table_name);
 
     if (connectDb() != 1) {
-        gtk_label_set_text(GTK_LABEL(errorLabel), "Database connection failed");
+        fprintf(stderr, "Echec de la connexion à la base de données");
         return;
     }
 
     if (sqlite3_exec(db, "BEGIN TRANSACTION", 0, 0, 0) != SQLITE_OK) {
-        gtk_label_set_text(GTK_LABEL(errorLabel), "Failed to begin transaction");
+        fprintf(stderr, "Echec de la transaction");
         closeDb();
         return;
     }
@@ -63,7 +63,7 @@ void connection(GtkWidget *widget, gpointer data) {
 
         sqlite3_finalize(query_prepare);
     } else {
-        gtk_label_set_text(GTK_LABEL(errorLabel), "Failed to execute query");
+        fprintf(stderr, "Echec de la requête");
     }
 
     sqlite3_exec(db, "ROLLBACK", 0, 0, 0);
@@ -80,12 +80,12 @@ void registration(GtkWidget *widget, gpointer data) {
     sprintf(sql, "SELECT * FROM %s WHERE pseudo=?;", config->database_table_name);
 
     if (connectDb() != 1) {
-        gtk_label_set_text(GTK_LABEL(errorLabel), "Database connection failed");
+        fprintf(stderr, "Echec de la connexion à la base de données");
         return;
     }
 
     if (sqlite3_exec(db, "BEGIN TRANSACTION", 0, 0, 0) != SQLITE_OK) {
-        gtk_label_set_text(GTK_LABEL(errorLabel), "Failed to begin transaction");
+        fprintf(stderr, "Echec de la transaction");
         closeDb();
         return;
     }
@@ -123,15 +123,15 @@ void registration(GtkWidget *widget, gpointer data) {
                     menu();
                     return;
                 } else {
-                    gtk_label_set_text(GTK_LABEL(errorLabel), "Échec de l'insertion");
+                    gtk_label_set_text(GTK_LABEL(errorLabel), "Échec de l'inscription");
                 }
                 sqlite3_finalize(query_prepare_insert);
             } else {
-                gtk_label_set_text(GTK_LABEL(errorLabel), "Échec de préparation de la requête d'insertion");
+                fprintf(stderr, "Échec de préparation de la requête d'insertion");
             }
         }
     } else {
-        gtk_label_set_text(GTK_LABEL(errorLabel), "Failed to execute query");
+        fprintf(stderr, "Echec de la requête");
     }
 
     sqlite3_exec(db, "ROLLBACK", 0, 0, 0);

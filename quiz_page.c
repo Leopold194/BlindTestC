@@ -60,12 +60,12 @@ void save_score(long int score) {
     sprintf(sql, "SELECT best_score, last_score FROM %s WHERE pseudo=?;", config->database_table_name);
 
     if (connectDb() != 1) {
-        fprintf(stderr, "Database connection failed");
+        fprintf(stderr, "Echec dans la connexion à la base de données");
         return;
     }
 
     if (sqlite3_exec(db, "BEGIN TRANSACTION", 0, 0, 0) != SQLITE_OK) {
-        fprintf(stderr, "Failed to begin transaction");
+        fprintf(stderr, "Echec dans la transaction");
         closeDb();
         return;
     }
@@ -80,23 +80,8 @@ void save_score(long int score) {
         }
         sqlite3_finalize(query_prepare);
     } else {
-        fprintf(stderr, "Failed to execute query");
+        fprintf(stderr, "Echec de la requête");
         sqlite3_exec(db, "ROLLBACK", 0, 0, 0);
-        closeDb();
-        return;
-    }
-
-    sqlite3_exec(db, "COMMIT", 0, 0, 0);
-
-    closeDb();
-
-    if (connectDb() != 1) {
-        fprintf(stderr, "Database connection failed");
-        return;
-    }
-
-    if (sqlite3_exec(db, "BEGIN TRANSACTION", 0, 0, 0) != SQLITE_OK) {
-        fprintf(stderr, "Failed to begin transaction");
         closeDb();
         return;
     }
@@ -118,11 +103,11 @@ void save_score(long int score) {
             sqlite3_bind_text(query_prepare_update, 2, currentPlayer, -1, SQLITE_STATIC);
         }
         if (sqlite3_step(query_prepare_update) != SQLITE_DONE) {
-            fprintf(stderr, "Échec de l'enregistrement : %s\n", sqlite3_errmsg(db));
+            fprintf(stderr, "Échec de l'enregistrement");
         }
         sqlite3_finalize(query_prepare_update);
     } else {
-        fprintf(stderr, "Échec de préparation de la requête d'enregistrement");
+        fprintf(stderr, "Échec de la requête");
         sqlite3_exec(db, "ROLLBACK", 0, 0, 0);
     }
 
@@ -171,7 +156,7 @@ void update_answers(Playlist *playlist) {
 
     char cwd[1024];
     if (getcwd(cwd, sizeof(cwd)) == NULL) {
-        g_print("getcwd() error");
+        fprintf(stderr, "getcwd() error");
         return;
     }
 
@@ -185,7 +170,7 @@ void update_answers(Playlist *playlist) {
 
     pipeline = gst_parse_launch(goodUri, &error);
     if (!pipeline) {
-        g_print("Erreur lors de la création du pipeline : %s\n", error->message);
+        fprintf(stderr, "Erreur lors de la création du pipeline : %s\n", error->message);
         g_error_free(error);
     }
     gst_element_set_state(pipeline, GST_STATE_PLAYING);

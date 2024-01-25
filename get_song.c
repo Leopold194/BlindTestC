@@ -12,20 +12,17 @@ size_t write_callback_track(void *contents, size_t size, size_t nmemb, void *use
 
     json_t *root = json_loadb(contents, realsize, 0, &error);
     if (!root) {
-        fprintf(stderr, "Error parsing JSON: %s\n", error.text);
+        fprintf(stderr, "Erreur JSON: %s\n", error.text);
         return 0;
     }
 
-    // Create variable to retrieve a data
     json_t *title = json_object_get(root, "title");
     json_t *artist = json_object_get(root, "artist");
 
-    // If we want to retrieve a data which is not in array
     if (json_is_string(title)) {
         strcpy(((Track *)userp)->title, json_string_value(title));
     }
 
-    // If we want to retrieve a data which is in array
     if (json_is_object(artist)) {
         json_t *artist_name = json_object_get(artist, "name");
         if (json_is_string(artist_name)) {
@@ -59,7 +56,7 @@ Track* init_track(unsigned long int id) {
         res = curl_easy_perform(curl);
 
         if (res != CURLE_OK)
-            fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
+            fprintf(stderr, "Erreur pendant le curl_easy_perform() : %s\n", curl_easy_strerror(res));
 
         curl_easy_cleanup(curl);
     }

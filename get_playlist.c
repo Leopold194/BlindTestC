@@ -35,7 +35,7 @@ size_t write_callback_playlist(void *contents, size_t size, size_t nmemb, void *
     mem->memory = realloc(mem->memory, mem->size + realsize + 1);
 
     if (mem->memory == NULL) {
-        fprintf(stderr, "Memory reallocation error\n");
+        fprintf(stderr, "Erreur pendant le realloc\n");
         return 0;
     }
 
@@ -56,8 +56,8 @@ Playlist* init_playlist(unsigned long int id) {
 
     curl = curl_easy_init();
     if (!curl) {
-        fprintf(stderr, "Failed to initialize cURL\n");
-        return NULL;
+        fprintf(stderr, "Erreur dans l'initialisation du curl\n");
+        return;
     }
 
     struct MemoryStruct chunk;
@@ -75,30 +75,30 @@ Playlist* init_playlist(unsigned long int id) {
     res = curl_easy_perform(curl);
 
     if (res != CURLE_OK) {
-        fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
+        fprintf(stderr, "Ereur dans le curl_easy_perform() : %s\n", curl_easy_strerror(res));
         free(chunk.memory);
         curl_easy_cleanup(curl);
-        return NULL;
+        return;
     }
 
     json_error_t error;
     json_t *root = json_loads(chunk.memory, 0, &error);
 
     if (!root) {
-        fprintf(stderr, "Error parsing JSON: %s\n", error.text);
+        fprintf(stderr, "Erreur avec le JSON: %s\n", error.text);
         free(chunk.memory);
         curl_easy_cleanup(curl);
-        return NULL;
+        return;
     }
 
     json_t *tracks = json_object_get(root, "tracks");
     json_t *data = json_object_get(tracks, "data");
     if (!json_is_array(data)) {
-        fprintf(stderr, "Invalid JSON format: 'data' is not an array\n");
+        fprintf(stderr, "Erreur JSON, data n'est pas un array\n");
         free(chunk.memory);
         json_decref(root);
         curl_easy_cleanup(curl);
-        return NULL;
+        return;
     }
 
     unsigned long int num_tracks = json_array_size(data);
@@ -116,12 +116,12 @@ Playlist* init_playlist(unsigned long int id) {
         json_t *artist_name = json_object_get(artist_json, "name");
 
         if (!json_is_string(title_json) || !json_is_string(artist_name)) {
-            fprintf(stderr, "Invalid JSON format: 'title' or 'artist' is not a string\n");
+            fprintf(stderr, "Erreur JSON, artist et name ne sont pas des string\n");
             free(chunk.memory);
             free(playlist);
             json_decref(root);
             curl_easy_cleanup(curl);
-            return NULL;
+            return;
         }
 
         playlist->tracklist[i].id = json_integer_value(json_object_get(track, "id"));

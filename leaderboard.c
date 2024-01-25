@@ -73,7 +73,7 @@ int leaderboard() {
     sprintf(sql, "SELECT pseudo, best_score FROM %s WHERE best_score > 0 ORDER BY best_score ASC;", config->database_table_name);
 
     if (sqlite3_exec(db, sql, callback, list_store, &err_msg) != SQLITE_OK) {
-        fprintf(stderr, "Failed to select data\n");
+        fprintf(stderr, "Erreur dans la requête\n");
         fprintf(stderr, "SQL error: %s\n", err_msg);
         sqlite3_free(err_msg);
         closeDb();

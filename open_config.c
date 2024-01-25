@@ -10,7 +10,7 @@ int loadConfig(const char *filename) {
     
     FILE *file = fopen(filename, "r");
     if (file == NULL) {
-        perror("Erreur lors de l'ouverture du fichier de configuration");
+        fprintf(stderr, "Erreur lors de l'ouverture du fichier de configuration\n");
         return -1;
     }
 
