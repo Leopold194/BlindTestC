@@ -33,7 +33,9 @@ int main(int argc, char *argv[]) {
     gtk_fixed_put(GTK_FIXED(fixed), entry1, 1000, 100);
      GdkRGBA color;
     gdk_rgba_parse(&color, "white");
-    gtk_widget_override_background_color(window, GTK_STATE_FLAG_NORMAL, &color);
+    gtk_widget_override_background_color(entry1, GTK_STATE_FLAG_NORMAL, &color);
+    gtk_widget_override_background_color(entry2, GTK_STATE_FLAG_NORMAL, &color);
+    gtk_widget_override_background_color(entry3, GTK_STATE_FLAG_NORMAL, &color);
 
 
     entry1 = gtk_entry_new();
