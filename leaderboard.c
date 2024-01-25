@@ -9,6 +9,9 @@ GtkWidget *tree_view;
 int callback(void *data, int argc, char **argv, char **col_names);
 
 static void render_background(GtkTreeViewColumn *column, GtkCellRenderer *renderer, GtkTreeModel *model, GtkTreeIter *iter, gpointer user_data) {
+    /*
+        Cette fonction permet d'afficher la ligne du classement appartenant au joueur connecté en couleur.
+    */
     gchar *pseudo;
     gtk_tree_model_get(model, iter, 0, &pseudo, -1);
     if (strcmp(pseudo, currentPlayer) == 0) {
@@ -22,6 +25,12 @@ static void render_background(GtkTreeViewColumn *column, GtkCellRenderer *render
 }
 
 int leaderboard() {
+    /*
+        Cette fonction permet d'afficher la page de classement des joueurs.
+        Pour se faire on récupère tous les joueurs en base de données, 
+        qui ont un meilleur score supérieur à 0 (valeur par défaut lors de la création du compte).
+        La requête permet égalemetn de les trier par ordre croissant.
+    */
     GtkWidget *window;
     GtkWidget *fixed;
 
@@ -95,6 +104,9 @@ int leaderboard() {
 }
 
 int callback(void *data, int argc, char **argv, char **col_names) {
+    /*
+        Cette fonction permet de lire les données, et d'enregistrer le meilleur score.
+    */
     GtkListStore *list_store = GTK_LIST_STORE(data);
     GtkTreeIter iter;
 

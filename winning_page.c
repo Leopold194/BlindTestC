@@ -6,19 +6,24 @@
 #include "open_config.h"
 #include "menu.h"
 
-int callback_win(void *data, int argc, char **argv, char **col_names);
-
 long int best_score;
 long int last_score;
 
 void replay(GtkWidget *widget) {
+    /*
+        Cette fonction permet de revenir au menu de choix de playlist.
+    */
     gtk_widget_destroy(GTK_WIDGET(gtk_widget_get_toplevel(widget)));
     menu();
     return;
 }
 
 int winning_page() {
-
+    /*
+        Cette fonction permet d'ouvrir une page affichant le score du joueur,
+        ainsi que son meilleur score, et son dernier score en date.
+        On a également un bouton permettant de rejouer une partie.
+    */
     GtkWidget *window;
     GtkWidget *fixed;
     GtkWidget *label;

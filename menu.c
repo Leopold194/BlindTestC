@@ -9,6 +9,10 @@
 GtkWidget *label;
 
 void launch_game(GtkWidget *widget, gpointer user_data){
+    /*
+        Cette fonction permet de lancer la partie, pour commencer elle initialise la playlist choisie,
+        Puis elle ouvre la page de quiz.
+    */
     unsigned long int playlistId = GPOINTER_TO_SIZE(user_data);
     Playlist *playlist = init_playlist(playlistId);
 
@@ -17,6 +21,10 @@ void launch_game(GtkWidget *widget, gpointer user_data){
 }
 
 int menu() {
+    /*
+        Cette fonction permet d'afficher la page proposant un choix entre 2 playlists.
+        Ainsi que la possibilité d'afficher le leaderboard de tous les joueurs.
+    */
     GtkWidget *window;
     GtkWidget *vbox;
     GtkWidget *fixed;

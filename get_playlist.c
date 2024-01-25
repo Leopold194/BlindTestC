@@ -8,12 +8,18 @@
 #include "get_playlist.h"
 #include "open_config.h"
 
+/*
+    Structure pour stocker les données téléchargées par le curl.
+*/
 struct MemoryStruct {
     char *memory;
     size_t size;
 };
 
 void shuffle_playlist(Playlist *playlist) {
+    /*
+        Cette fonction permet de mélanger aléatoirement les track de la playlist.
+    */
     size_t num_tracks = playlist->num_tracks;
 
     srand((unsigned int)time(NULL));
@@ -28,6 +34,9 @@ void shuffle_playlist(Playlist *playlist) {
 }
 
 size_t write_callback_playlist(void *contents, size_t size, size_t nmemb, void *userp) {
+    /*
+        Cette fonction permet de lire/garder en mémoire la réponse du curl.
+    */
     size_t realsize = size * nmemb;
     struct MemoryStruct *mem = (struct MemoryStruct *)userp;
 
@@ -50,6 +59,11 @@ size_t write_callback_playlist(void *contents, size_t size, size_t nmemb, void *
 }
 
 Playlist* init_playlist(unsigned long int id) {
+    /*
+        Cette fonction permet d'initialiser une playlist, grâce à son id.
+        Elle récupère tout d'abord le lien, execute un curl, puis récupère les données json, 
+        afin de les attribuer à chaque track de la playlist.
+    */
 
     CURL *curl;
     CURLcode res;
@@ -57,7 +71,7 @@ Playlist* init_playlist(unsigned long int id) {
     curl = curl_easy_init();
     if (!curl) {
         fprintf(stderr, "Erreur dans l'initialisation du curl\n");
-        return;
+        return NULL;
     }
 
     struct MemoryStruct chunk;
@@ -78,7 +92,7 @@ Playlist* init_playlist(unsigned long int id) {
         fprintf(stderr, "Ereur dans le curl_easy_perform() : %s\n", curl_easy_strerror(res));
         free(chunk.memory);
         curl_easy_cleanup(curl);
-        return;
+        return NULL;
     }
 
     json_error_t error;
@@ -88,7 +102,7 @@ Playlist* init_playlist(unsigned long int id) {
         fprintf(stderr, "Erreur avec le JSON: %s\n", error.text);
         free(chunk.memory);
         curl_easy_cleanup(curl);
-        return;
+        return NULL;
     }
 
     json_t *tracks = json_object_get(root, "tracks");
@@ -98,7 +112,7 @@ Playlist* init_playlist(unsigned long int id) {
         free(chunk.memory);
         json_decref(root);
         curl_easy_cleanup(curl);
-        return;
+        return NULL;
     }
 
     unsigned long int num_tracks = json_array_size(data);
@@ -121,7 +135,7 @@ Playlist* init_playlist(unsigned long int id) {
             free(playlist);
             json_decref(root);
             curl_easy_cleanup(curl);
-            return;
+            return NULL;
         }
 
         playlist->tracklist[i].id = json_integer_value(json_object_get(track, "id"));
@@ -139,5 +153,8 @@ Playlist* init_playlist(unsigned long int id) {
 }
 
 void free_playlist(Playlist *playlist) {
+    /*
+        Cette fonction permet de libérer la mémoire allouée pour la playlist.
+    */
     free(playlist);
 }

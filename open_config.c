@@ -6,6 +6,11 @@
 AppConfig *config;
 
 int loadConfig(const char *filename) {
+    /*
+        Cette fonction permet d'ouvrir le fichier de configuration.
+        Puis d'enregistrer ses données dans une structure utilisable tout au long de l'app.
+        Pour ce faire, on va lire les lignes une par une pour les attribuées aux champs de la structure.
+    */
     config = malloc(sizeof(AppConfig));
     
     FILE *file = fopen(filename, "r");

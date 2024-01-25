@@ -7,6 +7,9 @@
 #include "open_config.h"
 
 size_t write_callback_track(void *contents, size_t size, size_t nmemb, void *userp) {
+    /*
+        Cette fonction permet de lire/trier/sauvegarder les données récupérées pour chaque track.
+    */
     size_t realsize = size * nmemb;
     json_error_t error;
 
@@ -36,7 +39,9 @@ size_t write_callback_track(void *contents, size_t size, size_t nmemb, void *use
 
 
 Track* init_track(unsigned long int id) {
-
+    /*
+        Cette fonction permet d'initialiser un track.
+    */
     Track *track = malloc(sizeof(Track));
     track->id = id;
 

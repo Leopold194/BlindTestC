@@ -5,6 +5,7 @@
 #include "menu.h"
 #include "connect_db.h"
 #include "open_config.h"
+#include "create_database.h"
 
 GtkWidget *signin_entry_login;
 GtkWidget *signin_entry_pwd;
@@ -18,6 +19,13 @@ gboolean userExists = FALSE;
 gboolean checkUserExist = FALSE;
 
 void connection(GtkWidget *widget, gpointer data) {
+    /*
+        Cette fonction permet à un utilisateur du jeu de se connecter à son compte. 
+        Pour ce faire on récupère les valeurs entrées dans les entry.
+        Puis on recherche le mot de passe en base de données pour vérifier la correspondance,
+        et si on ne trouve pas de lignes correspondant au pseudo, on le fait savoir.
+        On utilise des requêtes préparées.
+    */
     const gchar *login_text = gtk_entry_get_text(GTK_ENTRY(signin_entry_login));
     const gchar *pwd_text = gtk_entry_get_text(GTK_ENTRY(signin_entry_pwd));
 
@@ -73,6 +81,13 @@ void connection(GtkWidget *widget, gpointer data) {
 
 
 void registration(GtkWidget *widget, gpointer data) {
+    /*
+        Cette fonction permet à un nouvel utilisateur du jeu de s'inscrire. 
+        Pour ce faire on récupère les valeurs entrées dans les entry.
+        Puis on vérifie que le pseudo n'est pas déjà pris, dans le cas contraire,
+        on enregistre pseudo et mot de passe dans la base de données.
+        On utilise également des requêtes préparées.
+    */
     const gchar *login_text = gtk_entry_get_text(GTK_ENTRY(signout_entry_login));
     const gchar *pwd_text = gtk_entry_get_text(GTK_ENTRY(signout_entry_pwd));
 
@@ -141,8 +156,14 @@ void registration(GtkWidget *widget, gpointer data) {
 
 
 int main(int argc, char *argv[]) {
-
+    /*
+        Cette fonction affiche la fenetre de connexion. Elle commence par créer la base de données
+        si elle n'existe pas, puis elle charge le fichier de configuration.
+        Puis on crée les différents labels/boutons/entry, avec des couleurs et des font size différentes.
+        On affiche les erreurs de connexion possibles dans un label erreur.
+    */
     loadConfig("config.txt");
+    create_database();
 
     GtkWidget *window;
     GtkWidget *fixed;
@@ -241,8 +262,8 @@ int main(int argc, char *argv[]) {
     gtk_widget_set_size_request(errorLabel, 300, 20);
     gtk_fixed_put(GTK_FIXED(fixed), errorLabel, ((config->windows_length/2) - 150), (config->windows_height /4 - 50 ));
     PangoFontDescription *font_desc3 = pango_font_description_new();
-            pango_font_description_set_size(font_desc3, 30 * PANGO_SCALE);
-            gtk_widget_override_font(errorLabel, font_desc3);
+    pango_font_description_set_size(font_desc3, 30 * PANGO_SCALE);
+    gtk_widget_override_font(errorLabel, font_desc3);
 
     gtk_widget_override_color(signin_label, GTK_STATE_FLAG_NORMAL, &(GdkRGBA){1, 1, 1, 1});
     gtk_widget_override_color(signin_label_login, GTK_STATE_FLAG_NORMAL, &(GdkRGBA){1, 1, 1, 1});

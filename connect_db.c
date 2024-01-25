@@ -6,8 +6,11 @@
 sqlite3 *db;
 
 int connectDb() {
+    /*
+        Cette fonction permet d'ouvrir la connexion à la base de données.
+    */
     if (sqlite3_open(config->database_name, &db) != SQLITE_OK) {
-        fprintf(stderr, "Cannot open database: %s\n", sqlite3_errmsg(db));
+        fprintf(stderr, "Impossible d'ouvrir la base de données : %s\n", sqlite3_errmsg(db));
         sqlite3_close(db);
         return 0;
     }

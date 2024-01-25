@@ -43,17 +43,28 @@ gboolean time_handler(GtkWidget *label);
 gboolean end_timer_callback(gpointer user_data);
 
 void reset_variables() {
+    /*
+        Cette fonction permet de remettre à 0 les variables qui en ont besoin.
+    */
     seconds = 0;
     score = 0;
     musicsPassed = 0;
 }
 
 void initialize_variables() {
+    /*
+        Cette fonction permet d'initialiser les variables grâce au fichier de configuration.
+    */
     original_seconds = config->timer;
     max_score = config->max_score;
 }
 
 void save_score(long int score) {
+    /*
+        Cette fonction permet de sauvegarder le score du joueur dans la base de données.
+        Elle enregistre toujours le score en "last_score", et s'il est meilleur que le best_score,
+        l'enregistre également en tant que best_score.
+    */
     long int best_score;
 
     char sql[200];
@@ -117,6 +128,9 @@ void save_score(long int score) {
 }
 
 void update_button_labels() {
+    /*
+        Cette fonction permet de mettre à jour les labels des boutons avec les titres des nouvelles musiques.
+    */
     gtk_button_set_label(GTK_BUTTON(buttonChoice1), title1);
     gtk_button_set_label(GTK_BUTTON(buttonChoice2), title2);
     gtk_button_set_label(GTK_BUTTON(buttonChoice3), title3);
@@ -128,6 +142,10 @@ void update_button_labels() {
 }
 
 void update_answers(Playlist *playlist) {
+    /*
+        Cette fonction permet d'actualiser le blind test à chaque nouvelle musique. 
+        Ca met à jour la pipeline qui joue la musique, remet à 0 le compteur de musique si elles sont toutes jouées.
+    */
     if (pipeline != NULL) {
         gst_element_set_state(pipeline, GST_STATE_NULL);
         gst_object_unref(pipeline);
@@ -177,6 +195,9 @@ void update_answers(Playlist *playlist) {
 }
 
 void on_window_destroy(){
+    /*
+        Cette fonction permet de réinitialiser le timer, et le remettre en play.
+    */
     end_timer_callback((gpointer) timer);
     update_answers(currentPlaylist);
     paused = FALSE;
@@ -184,6 +205,9 @@ void on_window_destroy(){
 }
 
 void show_info(GtkWidget *widget, gpointer window, char text[]) {
+    /*
+        Cette fonction permet d'afficher un pop-up avec la bonne réponse.
+    */
     dialog = gtk_message_dialog_new(GTK_WINDOW(window),
                 GTK_DIALOG_DESTROY_WITH_PARENT,
                 GTK_MESSAGE_INFO,
@@ -196,6 +220,11 @@ void show_info(GtkWidget *widget, gpointer window, char text[]) {
 }
 
 void check_answer(GtkWidget *widget, gpointer user_data) {
+    /*
+        Cette fonction permet de vérifier que le bouton sur lequel l'utilisateur a cliqué contient la bonne réponse.
+        S'il est arrivé au score maximal, on calcule son temps, on arrête la musique et le timer. On reset les variables s'il veut rejouer.
+        Et on libère la mémoire de la playlist, avant d'ouvrir la page de victoire.
+    */
     int userAnswer = GPOINTER_TO_INT(user_data);
     char text[256];
     if (userAnswer == goodAnswer) {
@@ -239,6 +268,9 @@ void check_answer(GtkWidget *widget, gpointer user_data) {
 }
 
 gboolean end_timer_callback(gpointer user_data) {
+    /*
+        Cette fonction permet de remettre le timer à sa valeur originale.
+    */
     
     seconds = original_seconds;
     
@@ -250,6 +282,10 @@ gboolean end_timer_callback(gpointer user_data) {
 }
 
 gboolean time_handler(GtkWidget *label) {
+    /*
+        Cette fonction permet de mettre à jour le timer. 
+        S'il reste moins de 1/5 du temps, l'affiche en rouge.
+    */
     if (!paused) {
         if (seconds >= 0) {
             gchar timer_seconds[6];
@@ -286,6 +322,10 @@ gboolean time_handler(GtkWidget *label) {
 }
 
 int quiz_page(Playlist *playlist) {
+    /*
+        Cette fonction permet d'afficher la page de jeu, avec les 4 choix, 
+        les points, et le timer.
+    */
 
     initialize_variables();
 
