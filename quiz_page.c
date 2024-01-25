@@ -4,6 +4,10 @@
 #include <unistd.h>
 #include "get_song.h"
 #include "get_playlist.h"
+#include "globals.h"
+#include "connect_db.h"
+#include "open_config.h"
+#include "winning_page.h"
 
 char title1[256];
 char title2[256];
@@ -12,10 +16,10 @@ char title4[256];
 int goodAnswer;
 int goodAnswerId;
 int musicsPassed = 0;
-int original_seconds = 30;
+int original_seconds;
 int seconds;
 int score;
-int max_score = 2;
+int max_score;
 
 GtkWidget *buttonChoice1;
 GtkWidget *buttonChoice2;
@@ -38,12 +42,102 @@ GtkWidget *dialog;
 Playlist *currentPlaylist;
 
 gboolean paused = FALSE;
+guint timer_id = 0;
 
 time_t startTime;
 time_t endTime;
 
 gboolean time_handler(GtkWidget *label);
 gboolean end_timer_callback(gpointer user_data);
+
+void reset_variables() {
+    seconds = 0;
+    score = 0;
+    musicsPassed = 0;
+}
+
+void initialize_variables() {
+    original_seconds = config->timer;
+    max_score = config->max_score;
+}
+
+void save_score(long int score) {
+    long int best_score;
+
+    char sql[200];
+    sprintf(sql, "SELECT best_score, last_score FROM %s WHERE pseudo=?;", config->database_table_name);
+
+    if (connectDb() != 1) {
+        fprintf(stderr, "Database connection failed");
+        return;
+    }
+
+    if (sqlite3_exec(db, "BEGIN TRANSACTION", 0, 0, 0) != SQLITE_OK) {
+        fprintf(stderr, "Failed to begin transaction");
+        closeDb();
+        return;
+    }
+
+    sqlite3_stmt *query_prepare;
+    if (sqlite3_prepare_v2(db, sql, -1, &query_prepare, 0) == SQLITE_OK) {
+        sqlite3_bind_text(query_prepare, 1, currentPlayer, -1, SQLITE_STATIC);
+
+        if (sqlite3_step(query_prepare) == SQLITE_ROW) {
+            lastBestScore = sqlite3_column_int(query_prepare, 0);
+            lastScore = sqlite3_column_int(query_prepare, 1);
+        }
+        sqlite3_finalize(query_prepare);
+    } else {
+        fprintf(stderr, "Failed to execute query");
+        sqlite3_exec(db, "ROLLBACK", 0, 0, 0);
+        closeDb();
+        return;
+    }
+
+    sqlite3_exec(db, "COMMIT", 0, 0, 0);
+
+    closeDb();
+
+    if (connectDb() != 1) {
+        fprintf(stderr, "Database connection failed");
+        return;
+    }
+
+    if (sqlite3_exec(db, "BEGIN TRANSACTION", 0, 0, 0) != SQLITE_OK) {
+        fprintf(stderr, "Failed to begin transaction");
+        closeDb();
+        return;
+    }
+
+    char sql2[256];
+    if (lastBestScore > score) {
+        sprintf(sql2, "UPDATE %s SET last_score=?, best_score=? WHERE pseudo=?;", config->database_table_name);
+    } else {
+        sprintf(sql2, "UPDATE %s SET last_score=? WHERE pseudo=?;", config->database_table_name);
+    }
+    
+    sqlite3_stmt *query_prepare_update;
+    if (sqlite3_prepare_v2(db, sql2, -1, &query_prepare_update, 0) == SQLITE_OK) {
+        sqlite3_bind_int(query_prepare_update, 1, score);
+        if (lastBestScore > score) {
+            sqlite3_bind_int(query_prepare_update, 2, score);
+            sqlite3_bind_text(query_prepare_update, 3, currentPlayer, -1, SQLITE_STATIC);
+        } else {
+            sqlite3_bind_text(query_prepare_update, 2, currentPlayer, -1, SQLITE_STATIC);
+        }
+        if (sqlite3_step(query_prepare_update) != SQLITE_DONE) {
+            fprintf(stderr, "Échec de l'enregistrement : %s\n", sqlite3_errmsg(db));
+        }
+        sqlite3_finalize(query_prepare_update);
+    } else {
+        fprintf(stderr, "Échec de préparation de la requête d'enregistrement");
+        sqlite3_exec(db, "ROLLBACK", 0, 0, 0);
+    }
+
+    sqlite3_exec(db, "COMMIT", 0, 0, 0);
+
+    closeDb();
+}
 
 void update_button_labels() {
     gtk_button_set_label(GTK_BUTTON(buttonChoice1), title1);
@@ -60,6 +154,7 @@ void update_answers(Playlist *playlist) {
     if (pipeline != NULL) {
         gst_element_set_state(pipeline, GST_STATE_NULL);
         gst_object_unref(pipeline);
+        pipeline = NULL;
     }
 
     srand((unsigned int)time(NULL));
@@ -74,11 +169,25 @@ void update_answers(Playlist *playlist) {
 
     update_button_labels();
 
+    char cwd[1024];
+    if (getcwd(cwd, sizeof(cwd)) == NULL) {
+        g_print("getcwd() error");
+        return;
+    }
+
     char uri[512];
-    snprintf(uri, sizeof(uri), "file:///home/leo/Documents/PROJET_C/Songs/%lu/%lu.mp3", playlist->id, goodAnswerId);
-    char goodUri[512] = "playbin uri=";
-    strcat(goodUri, uri);
-    pipeline = gst_parse_launch(goodUri, NULL);
+    snprintf(uri, sizeof(uri), "file://%s/%s%lu/%lu.mp3", cwd, config->songs_path, playlist->id, goodAnswerId);
+
+    char goodUri[512];
+    snprintf(goodUri, sizeof(goodUri), "playbin uri=%s", uri);
+
+    GError *error = NULL;
+
+    pipeline = gst_parse_launch(goodUri, &error);
+    if (!pipeline) {
+        g_print("Erreur lors de la création du pipeline : %s\n", error->message);
+        g_error_free(error);
+    }
     gst_element_set_state(pipeline, GST_STATE_PLAYING);
 }
 
@@ -110,8 +219,18 @@ void check_answer(GtkWidget *widget, gpointer user_data) {
 
         if(score == max_score){
             time(&endTime);
-            long int elapsedTime = difftime(endTime, startTime);
-            g_print("Temps écoulé : %ld secondes\n", elapsedTime);
+            elapsedTime = difftime(endTime, startTime);
+            save_score(elapsedTime);
+            if (pipeline != NULL) {
+                gst_element_set_state(pipeline, GST_STATE_NULL);
+                gst_object_unref(pipeline);
+                pipeline = NULL;
+            }
+            g_source_remove(timer_id);
+            reset_variables();
+            gtk_widget_destroy(GTK_WIDGET(gtk_widget_get_toplevel(widget)));
+            winning_page();
+            return;
         }
     } else {
         strcpy(text, "Raté ! La bonne réponse était : ");
@@ -150,7 +269,6 @@ gboolean time_handler(GtkWidget *label) {
             gchar timer_seconds[6];
             snprintf(timer_seconds, sizeof(timer_seconds), "00:%02d", seconds);
             gtk_label_set_text(GTK_LABEL(label), timer_seconds);
-
             seconds--;
             return TRUE;
         } else {
@@ -175,10 +293,12 @@ gboolean time_handler(GtkWidget *label) {
             show_info(NULL, NULL, text);
         }
     }
-    return TRUE;
+    return G_SOURCE_CONTINUE;
 }
 
 int quiz_page(Playlist *playlist) {
+    initialize_variables();
+
     seconds = original_seconds;
     currentPlaylist = playlist;
 
@@ -187,10 +307,10 @@ int quiz_page(Playlist *playlist) {
     GtkWidget *label;
 
     window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-    gtk_window_set_title(GTK_WINDOW(window), "GTK Example");
+    gtk_window_set_title(GTK_WINDOW(window), "BlindTest");
     gtk_container_set_border_width(GTK_CONTAINER(window), 10);
     gtk_window_set_position(GTK_WINDOW(window), GTK_WIN_POS_CENTER);
-    gtk_widget_set_size_request(window, 1800, 900);
+    gtk_widget_set_size_request(window, config->windows_length, config->windows_height);
 
     fixed = gtk_fixed_new();
     gtk_container_add(GTK_CONTAINER(window), fixed);
@@ -239,7 +359,7 @@ int quiz_page(Playlist *playlist) {
 
     g_signal_connect(G_OBJECT(window), "destroy", G_CALLBACK(gtk_main_quit), NULL);
 
-    g_timeout_add_seconds(1, (GSourceFunc) time_handler, (gpointer) timer);
+    timer_id = g_timeout_add_seconds(1, (GSourceFunc) time_handler, (gpointer) timer);
 
     gtk_widget_show_all(window);
 
