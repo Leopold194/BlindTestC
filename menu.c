@@ -35,8 +35,8 @@ int menu() {
 
     GdkRGBA color;
     gdk_rgba_parse(&color, "white");
-    gtk_widget_override_background_color(buttonPlaylist1, GTK_STATE_FLAG_NORMAL, &color);
-    gtk_widget_override_background_color(buttonPlaylist2, GTK_STATE_FLAG_NORMAL, &color);
+    g_object_set(buttonPlaylist1, "rgba", &color, NULL);
+    g_object_set(buttonPlaylist2, "rgba", &color, NULL);
     gtk_widget_set_size_request(window, config->windows_length, config->windows_height);
 
     fixed = gtk_fixed_new();

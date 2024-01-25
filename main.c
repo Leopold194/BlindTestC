@@ -163,14 +163,14 @@ int main(int argc, char *argv[]) {
     window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
     gtk_window_set_title(GTK_WINDOW(window), "Connexion");
     gtk_container_set_border_width(GTK_CONTAINER(window), 10);
-  
-    GdkRGBA color;
-    gdk_rgba_parse(&color, "grey");
-    gtk_widget_override_background_color(window, GTK_STATE_FLAG_NORMAL, &color);
-    gtk_widget_set_size_request(window, 1800, 900);
+    gtk_widget_set_size_request(window, config->windows_length, config->windows_height);
 
     fixed = gtk_fixed_new();
     gtk_container_add(GTK_CONTAINER(window), fixed);
+
+    GtkWidget *image = gtk_image_new_from_file("uploads/background.jpg");
+    gtk_widget_set_size_request(image, 400, 300);
+    gtk_fixed_put(GTK_FIXED(fixed), image, 0, 0);
 
     //Signin
 
@@ -222,6 +222,14 @@ int main(int argc, char *argv[]) {
 
     errorLabel = gtk_label_new("");
     gtk_fixed_put(GTK_FIXED(fixed), errorLabel, 770, 500);
+
+    gtk_widget_override_color(signin_label, GTK_STATE_FLAG_NORMAL, &(GdkRGBA){1, 1, 1, 1});
+    gtk_widget_override_color(signin_label_login, GTK_STATE_FLAG_NORMAL, &(GdkRGBA){1, 1, 1, 1});
+    gtk_widget_override_color(signin_label_pwd, GTK_STATE_FLAG_NORMAL, &(GdkRGBA){1, 1, 1, 1});
+    gtk_widget_override_color(signout_label, GTK_STATE_FLAG_NORMAL, &(GdkRGBA){1, 1, 1, 1});
+    gtk_widget_override_color(signout_label_login, GTK_STATE_FLAG_NORMAL, &(GdkRGBA){1, 1, 1, 1});
+    gtk_widget_override_color(signout_label_pwd, GTK_STATE_FLAG_NORMAL, &(GdkRGBA){1, 1, 1, 1});
+    gtk_widget_override_color(errorLabel, GTK_STATE_FLAG_NORMAL, &(GdkRGBA){1, 1, 1, 1});
 
     gtk_widget_show_all(window);
 
