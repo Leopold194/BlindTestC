@@ -19,6 +19,7 @@ typedef struct {
     char songs_path[256];
     char my_ranking_color[8];
     char database_name[35];
+    char windows_color[8];
 } AppConfig;
 
 extern AppConfig *config;

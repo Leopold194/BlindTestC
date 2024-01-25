@@ -32,6 +32,10 @@ int winning_page() {
     gtk_window_set_position(GTK_WINDOW(window), GTK_WIN_POS_CENTER);
     gtk_widget_set_size_request(window, config->windows_length, config->windows_height);
 
+    GdkRGBA color;
+    gdk_rgba_parse(&color, config->windows_color);
+    gtk_widget_override_background_color(window, GTK_STATE_FLAG_NORMAL, &color);
+
     fixed = gtk_fixed_new();
     gtk_container_add(GTK_CONTAINER(window), fixed);
 
@@ -39,7 +43,16 @@ int winning_page() {
     snprintf(winning_message, sizeof(winning_message), "Bravo %s ! Tu as réussi à avoir %d points en %ld secondes", currentPlayer, config->max_score, elapsedTime);
 
     label = gtk_label_new(winning_message);
-    gtk_fixed_put(GTK_FIXED(fixed), label, 750, 50);
+    PangoFontDescription *font_desc = pango_font_description_new();
+    pango_font_description_set_size(font_desc, 30 * PANGO_SCALE);
+    gtk_widget_override_font(label, font_desc);
+
+    GdkRGBA text_color;
+    gdk_rgba_parse(&text_color, "#ffd700");
+    gtk_widget_override_color(label, GTK_STATE_FLAG_NORMAL, &text_color);
+
+    gtk_fixed_put(GTK_FIXED(fixed), label, (config->windows_length) / 2 - 450, 50);
+    gtk_widget_set_size_request(label, 900, 20);
 
     gchar summary_message[256];
     if(lastBestScore < elapsedTime){
@@ -49,13 +62,19 @@ int winning_page() {
     }
 
     summary = gtk_label_new(summary_message);
-    gtk_fixed_put(GTK_FIXED(fixed), summary, 620, 150);
+    PangoFontDescription *font_desc2 = pango_font_description_new();
+    pango_font_description_set_size(font_desc2, 25 * PANGO_SCALE);
+    gtk_widget_override_font(summary, font_desc2);
+    gtk_widget_set_size_request(summary, 1200, 20);
+    gtk_fixed_put(GTK_FIXED(fixed), summary, (config->windows_length) / 2 - 600, 150);
 
     gchar summary_message2[256];
     snprintf(summary_message2, sizeof(summary_message2), "Ton précédent score était %lu secondes", lastScore);
 
     summary2 = gtk_label_new(summary_message2);
-    gtk_fixed_put(GTK_FIXED(fixed), summary2, 790, 220);
+    gtk_widget_override_font(summary2, font_desc2);
+    gtk_widget_set_size_request(summary2, 1200, 20);
+    gtk_fixed_put(GTK_FIXED(fixed), summary2, (config->windows_length) / 2 - 600, 220);
         
     replay_button = gtk_button_new_with_label("Rejouer");
     gtk_fixed_put(GTK_FIXED(fixed), replay_button, 750, 500);

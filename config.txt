@@ -1,5 +1,5 @@
 timer=30
-max_score=20
+max_score=1
 windows_height=900
 windows_length=1800
 img_playlist1=annees_80.jpg
@@ -13,3 +13,4 @@ database_table_name=User
 songs_path=Songs/
 my_ranking_color=#FAD150
 database_name=database.db
+windows_color=#9191E9

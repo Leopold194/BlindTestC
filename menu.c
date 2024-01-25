@@ -27,17 +27,16 @@ int menu() {
     GtkWidget *imagePlaylist2;
 
     GtkWidget *leaderboardBtn;
-    
+
     window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
     gtk_window_set_title(GTK_WINDOW(window), "Choix de la playlist");
     gtk_container_set_border_width(GTK_CONTAINER(window), 10);
     gtk_window_set_position(GTK_WINDOW(window), GTK_WIN_POS_CENTER);
+    gtk_widget_set_size_request(window, config->windows_length, config->windows_height);
 
     GdkRGBA color;
-    gdk_rgba_parse(&color, "white");
-    g_object_set(buttonPlaylist1, "rgba", &color, NULL);
-    g_object_set(buttonPlaylist2, "rgba", &color, NULL);
-    gtk_widget_set_size_request(window, config->windows_length, config->windows_height);
+    gdk_rgba_parse(&color, config->windows_color);
+    gtk_widget_override_background_color(window, GTK_STATE_FLAG_NORMAL, &color);
 
     fixed = gtk_fixed_new();
     gtk_container_add(GTK_CONTAINER(window), fixed);
@@ -46,7 +45,12 @@ int menu() {
     snprintf(welcome_message, sizeof(welcome_message), "Salut %s ! Choisis la playlist avec laquelle tu veux jouer", currentPlayer);
 
     label = gtk_label_new(welcome_message);
-    gtk_fixed_put(GTK_FIXED(fixed), label, 750, 50);
+    PangoFontDescription *font_desc = pango_font_description_new();
+    pango_font_description_set_size(font_desc, 20 * PANGO_SCALE);
+    gtk_widget_override_font(label, font_desc);
+
+    gtk_widget_set_size_request(label, 900, 50);
+    gtk_fixed_put(GTK_FIXED(fixed), label, (config->windows_length) / 2 - 450, 20);
 
     char image_path_playlist1[100];
     snprintf(image_path_playlist1, sizeof(image_path_playlist1), "%s/%s", config->image_folder, config->img_playlist1);
@@ -69,8 +73,13 @@ int menu() {
     gtk_widget_set_size_request(buttonPlaylist2, 300, 300);
     
     leaderboardBtn = gtk_button_new_with_label("Classement");
-    gtk_fixed_put(GTK_FIXED(fixed), leaderboardBtn, 750, 500);
+    gtk_fixed_put(GTK_FIXED(fixed), leaderboardBtn, (config->windows_length) / 2 - 150, 500);
     gtk_widget_set_size_request(leaderboardBtn, 300, 50);
+
+    GdkRGBA text_color1;
+    gdk_rgba_parse(&text_color1, "#FF6978");
+    gtk_widget_override_color(leaderboardBtn, GTK_STATE_FLAG_NORMAL, &text_color1);
+    gtk_widget_override_font(leaderboardBtn, font_desc);
 
     unsigned long int playlistId1 = config->playlist_id1;
     g_signal_connect(buttonPlaylist1, "clicked", G_CALLBACK(launch_game), GSIZE_TO_POINTER(playlistId1));

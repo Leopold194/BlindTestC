@@ -31,6 +31,10 @@ int leaderboard() {
     gtk_window_set_position(GTK_WINDOW(window), GTK_WIN_POS_CENTER);
     gtk_widget_set_size_request(window, config->windows_length, config->windows_height);
 
+    GdkRGBA color;
+    gdk_rgba_parse(&color, config->windows_color);
+    gtk_widget_override_background_color(window, GTK_STATE_FLAG_NORMAL, &color);
+
     fixed = gtk_fixed_new();
     gtk_container_add(GTK_CONTAINER(window), fixed);
 

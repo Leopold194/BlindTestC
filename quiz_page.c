@@ -149,6 +149,8 @@ void update_answers(Playlist *playlist) {
         pipeline = NULL;
     }
 
+    gtk_widget_override_color(timer, GTK_STATE_FLAG_NORMAL, &(GdkRGBA){1, 1, 1, 1});
+
     srand((unsigned int)time(NULL));
     goodAnswer = rand() % 4 + 1;
 
@@ -261,6 +263,9 @@ gboolean time_handler(GtkWidget *label) {
             gchar timer_seconds[6];
             snprintf(timer_seconds, sizeof(timer_seconds), "00:%02d", seconds);
             gtk_label_set_text(GTK_LABEL(label), timer_seconds);
+            if (seconds <= config->timer / 5) {
+                gtk_widget_override_color(timer, GTK_STATE_FLAG_NORMAL, &(GdkRGBA){1, 0, 0, 1});
+            }
             seconds--;
             return TRUE;
         } else {
@@ -290,18 +295,6 @@ gboolean time_handler(GtkWidget *label) {
 
 int quiz_page(Playlist *playlist) {
 
-    GdkRGBA color;
-
-    gdk_rgba_parse(&color, "blue");
-    g_object_set(buttonChoice1, "rgba", &color, NULL);
-    g_object_set(buttonChoice2, "rgba", &color, NULL);
-    g_object_set(buttonChoice3, "rgba", &color, NULL);
-    g_object_set(buttonChoice4, "rgba", &color, NULL);
-    gdk_rgba_parse(&color, "red");
-    g_object_set(timer, "rgba", &color, NULL);
-    gdk_rgba_parse(&color, "light green");
-    g_object_set(scoreLabel, "rgba", &color, NULL);
-
     initialize_variables();
 
     seconds = original_seconds;
@@ -317,41 +310,81 @@ int quiz_page(Playlist *playlist) {
     gtk_window_set_position(GTK_WINDOW(window), GTK_WIN_POS_CENTER);
     gtk_widget_set_size_request(window, config->windows_length, config->windows_height);
 
+    GdkRGBA color;
+    gdk_rgba_parse(&color, config->windows_color);
+    gtk_widget_override_background_color(window, GTK_STATE_FLAG_NORMAL, &color);
+
     fixed = gtk_fixed_new();
     gtk_container_add(GTK_CONTAINER(window), fixed);
 
     label = gtk_label_new("Choisis la bonne réponse !");
-    gtk_fixed_put(GTK_FIXED(fixed), label, 800, 50);
+    PangoFontDescription *font_desc = pango_font_description_new();
+    pango_font_description_set_size(font_desc, 20 * PANGO_SCALE);
+    gtk_widget_override_font(label, font_desc);
+    gtk_widget_set_size_request(label, 900, 20);
+    gtk_fixed_put(GTK_FIXED(fixed), label, (config->windows_length) / 2 - 450, 50);
 
     int choice1 = 1;
     int choice2 = 2;
     int choice3 = 3;
     int choice4 = 4;
 
+    PangoFontDescription *font_desc2 = pango_font_description_new();
+    pango_font_description_set_size(font_desc2, 17 * PANGO_SCALE);
+
     buttonChoice1 = gtk_button_new_with_label("");
-    gtk_fixed_put(GTK_FIXED(fixed), buttonChoice1, 300, 200);
-    gtk_widget_set_size_request(buttonChoice1, 300, 100);
+    gtk_fixed_put(GTK_FIXED(fixed), buttonChoice1, (config->windows_length) / 4 - 250, 200);
+    gtk_widget_set_size_request(buttonChoice1, 500, 100);
+
+    GdkRGBA text_color0;
+    gdk_rgba_parse(&text_color0, "#8202AA");
+    gtk_widget_override_color(buttonChoice1, GTK_STATE_FLAG_NORMAL, &text_color0);
+    gtk_widget_override_font(buttonChoice1, font_desc2);
 
     buttonChoice2 = gtk_button_new_with_label("");
-    gtk_fixed_put(GTK_FIXED(fixed), buttonChoice2, 1200, 200);
-    gtk_widget_set_size_request(buttonChoice2, 300, 100);
+    gtk_fixed_put(GTK_FIXED(fixed), buttonChoice2, (config->windows_length) / 4 * 3 - 250, 200);
+    gtk_widget_set_size_request(buttonChoice2, 500, 100);
+
+    GdkRGBA text_color1;
+    gdk_rgba_parse(&text_color1, "#D7B023");
+    gtk_widget_override_color(buttonChoice2, GTK_STATE_FLAG_NORMAL, &text_color1);
+    gtk_widget_override_font(buttonChoice2, font_desc2);
 
     buttonChoice3 = gtk_button_new_with_label("");
-    gtk_fixed_put(GTK_FIXED(fixed), buttonChoice3, 300, 400);
-    gtk_widget_set_size_request(buttonChoice3, 300, 100);
+    gtk_fixed_put(GTK_FIXED(fixed), buttonChoice3, (config->windows_length) / 4 - 250, 400);
+    gtk_widget_set_size_request(buttonChoice3, 500, 100);
+
+    GdkRGBA text_color2;
+    gdk_rgba_parse(&text_color2, "#ED80A2");
+    gtk_widget_override_color(buttonChoice3, GTK_STATE_FLAG_NORMAL, &text_color2);
+    gtk_widget_override_font(buttonChoice3, font_desc2);
 
     buttonChoice4 = gtk_button_new_with_label("");
-    gtk_fixed_put(GTK_FIXED(fixed), buttonChoice4, 1200, 400);
-    gtk_widget_set_size_request(buttonChoice4, 300, 100);
+    gtk_fixed_put(GTK_FIXED(fixed), buttonChoice4, (config->windows_length) / 4 * 3 - 250, 400);
+    gtk_widget_set_size_request(buttonChoice4, 500, 100);
+
+    GdkRGBA text_color3;
+    gdk_rgba_parse(&text_color3, "#00B8F8");
+    gtk_widget_override_color(buttonChoice4, GTK_STATE_FLAG_NORMAL, &text_color3);
+    gtk_widget_override_font(buttonChoice4, font_desc2);
 
     gchar timer_seconds[6];
     snprintf(timer_seconds, sizeof(timer_seconds), "00:%02d", seconds);
 
     timer = gtk_label_new(timer_seconds);
-    gtk_fixed_put(GTK_FIXED(fixed), timer, 870, 600);
+    gtk_widget_set_size_request(timer, 200, 20);
+    gtk_fixed_put(GTK_FIXED(fixed), timer, (config->windows_length) / 2 - 100, 600);
+    gtk_widget_override_font(timer, font_desc);
+
+    gtk_widget_override_color(timer, GTK_STATE_FLAG_NORMAL, &(GdkRGBA){1, 1, 1, 1});
 
     scoreLabel = gtk_label_new("");
     gtk_fixed_put(GTK_FIXED(fixed), scoreLabel, 20, 20);
+
+    GdkRGBA text_color4;
+    gdk_rgba_parse(&text_color4, "#00e700");
+    gtk_widget_override_color(scoreLabel, GTK_STATE_FLAG_NORMAL, &text_color4);
+    gtk_widget_override_font(scoreLabel, font_desc);
 
     g_signal_connect(buttonChoice1, "clicked", G_CALLBACK(check_answer), GINT_TO_POINTER(choice1));
     g_signal_connect(buttonChoice2, "clicked", G_CALLBACK(check_answer), GINT_TO_POINTER(choice2));
