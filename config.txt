@@ -1,5 +1,5 @@
 timer=30
-max_score=1
+max_score=20
 windows_height=900
 windows_length=1800
 img_playlist1=annees_80.jpg
