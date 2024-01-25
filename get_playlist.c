@@ -101,14 +101,14 @@ Playlist* init_playlist(unsigned long int id) {
         return NULL;
     }
 
-    size_t num_tracks = json_array_size(data);
+    unsigned long int num_tracks = json_array_size(data);
 
     Playlist *playlist = malloc(sizeof(Playlist) + num_tracks * sizeof(Track));
 
     playlist->id = json_integer_value(json_object_get(root, "id"));
     playlist->num_tracks = num_tracks;
 
-    for (size_t i = 0; i < num_tracks; ++i) {
+    for (unsigned long int i = 0; i < num_tracks; ++i) {
         json_t *track = json_array_get(data, i);
 
         json_t *title_json = json_object_get(track, "title");

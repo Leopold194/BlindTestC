@@ -20,7 +20,6 @@ int original_seconds;
 int seconds;
 int score;
 int max_score;
-int playlist_songs_nb;
 
 GtkWidget *buttonChoice1;
 GtkWidget *buttonChoice2;
@@ -230,6 +229,7 @@ void check_answer(GtkWidget *widget, gpointer user_data) {
             g_source_remove(timer_id);
             reset_variables();
             gtk_widget_destroy(GTK_WIDGET(gtk_widget_get_toplevel(widget)));
+            free_playlist(currentPlaylist);
             winning_page();
             return;
         }

@@ -66,7 +66,3 @@ Track* init_track(unsigned long int id) {
 
     return track;
 }
-
-void free_track(Track *track){
-    free(track);
-}
