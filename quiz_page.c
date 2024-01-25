@@ -27,7 +27,15 @@ GtkWidget *buttonChoice3;
 GtkWidget *buttonChoice4;
 GtkWidget *timer;
 GtkWidget *scoreLabel;
-
+gdk_rgba_parse(&color, "blue");
+gtk_widget_override_background_color(buttonChoice1, GTK_STATE_FLAG_NORMAL, &color);
+gtk_widget_override_background_color(buttonChoice2, GTK_STATE_FLAG_NORMAL, &color);
+gtk_widget_override_background_color(buttonChoice3, GTK_STATE_FLAG_NORMAL, &color);
+gtk_widget_override_background_color(buttonChoice4, GTK_STATE_FLAG_NORMAL, &color);
+gdk_rgba_parse(&color, "red");
+gtk_widget_override_background_color(timer, GTK_STATE_FLAG_NORMAL, &color);
+gdk_rgba_parse(&color, "light green");
+gtk_widget_override_background_color(scoreLabel, GTK_STATE_FLAG_NORMAL, &color);
 GstElement *pipeline;
 GtkWidget *dialog;
 
