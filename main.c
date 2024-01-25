@@ -18,7 +18,9 @@ int main(int argc, char *argv[]) {
     window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
     gtk_window_set_title(GTK_WINDOW(window), "GTK Example");
     gtk_container_set_border_width(GTK_CONTAINER(window), 10);
-    gtk_window_set_position(GTK_WINDOW(window), GTK_WIN_POS_CENTER);
+    gtk_widget_set_halign(window, GTK_ALIGN_END);
+    gtk_widget_set_valign(window, GTK_ALIGN_START);
+
     gtk_widget_set_size_request(window, 1800, 900);
 
     fixed = gtk_fixed_new();
