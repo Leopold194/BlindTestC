@@ -20,6 +20,7 @@ int original_seconds;
 int seconds;
 int score;
 int max_score;
+int playlist_songs_nb;
 
 GtkWidget *buttonChoice1;
 GtkWidget *buttonChoice2;
@@ -153,6 +154,12 @@ void update_answers(Playlist *playlist) {
 
     srand((unsigned int)time(NULL));
     goodAnswer = rand() % 4 + 1;
+
+    currentPlaylist->num_tracks = 8;
+    if (musicsPassed >= currentPlaylist->num_tracks - 3) {
+        musicsPassed = 0;
+        shuffle_playlist(currentPlaylist);
+    }
 
     strncpy(title1, playlist->tracklist[musicsPassed].title, sizeof(title1) - 1);
     strncpy(title2, playlist->tracklist[musicsPassed + 1].title, sizeof(title2) - 1);

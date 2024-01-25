@@ -184,11 +184,11 @@ int main(int argc, char *argv[]) {
     gtk_widget_set_size_request(signin_label, 200, 30);
 
     signin_label_login = gtk_label_new("Pseudo :");
+    gtk_widget_override_font(signin_label_login, font_desc1);
     gtk_fixed_put(GTK_FIXED(fixed), signin_label_login, (config->windows_length)/4  - 100, 150);
     gtk_widget_set_size_request(signin_label_login, 200, 30);
 
     signin_entry_login = gtk_entry_new();
-    gtk_widget_override_font(signin_entry_login, font_desc1);
     gtk_fixed_put(GTK_FIXED(fixed), signin_entry_login, (config->windows_length)/4 - 100, 200);
     gtk_widget_set_size_request(signin_entry_login, 200, 30);
 
@@ -213,7 +213,6 @@ int main(int argc, char *argv[]) {
     gtk_widget_set_size_request(signout_label, 200, 30);
 
     signout_label_login = gtk_label_new("Pseudo :");
-
     gtk_widget_override_font(signout_label_login, font_desc1);
     gtk_fixed_put(GTK_FIXED(fixed), signout_label_login, (config->windows_length)/4 *3 - 100, 150);
     gtk_widget_set_size_request(signout_label_login, 200, 30);

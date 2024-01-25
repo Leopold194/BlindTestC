@@ -58,7 +58,7 @@ int loadConfig(const char *filename) {
                 strncpy(config->database_name, value, sizeof(config->database_name));
             } else if (strcmp(key, "windows_color") == 0) {
                 strncpy(config->windows_color, value, sizeof(config->windows_color));
-            } 
+            }
         }
     }
 
