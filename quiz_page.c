@@ -98,7 +98,7 @@ void save_score(long int score) {
     }
 
     char sql2[256];
-    if (lastBestScore > score) {
+    if (lastBestScore == 0 || lastBestScore > score) {
         sprintf(sql2, "UPDATE %s SET last_score=?, best_score=? WHERE pseudo=?;", config->database_table_name);
     } else {
         sprintf(sql2, "UPDATE %s SET last_score=? WHERE pseudo=?;", config->database_table_name);
@@ -107,7 +107,7 @@ void save_score(long int score) {
     sqlite3_stmt *query_prepare_update;
     if (sqlite3_prepare_v2(db, sql2, -1, &query_prepare_update, 0) == SQLITE_OK) {
         sqlite3_bind_int(query_prepare_update, 1, score);
-        if (lastBestScore > score) {
+        if (lastBestScore == 0 || lastBestScore > score) {
             sqlite3_bind_int(query_prepare_update, 2, score);
             sqlite3_bind_text(query_prepare_update, 3, currentPlayer, -1, SQLITE_STATIC);
         } else {
@@ -157,7 +157,6 @@ void update_answers(Playlist *playlist) {
     srand((unsigned int)time(NULL));
     goodAnswer = rand() % 4 + 1;
 
-    currentPlaylist->num_tracks = 8;
     if (musicsPassed >= currentPlaylist->num_tracks - 3) {
         musicsPassed = 0;
         shuffle_playlist(currentPlaylist);

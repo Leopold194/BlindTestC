@@ -60,7 +60,9 @@ int winning_page() {
     gtk_widget_set_size_request(label, 900, 20);
 
     gchar summary_message[256];
-    if(lastBestScore < elapsedTime){
+    if(lastBestScore == 0) {
+        snprintf(summary_message, sizeof(summary_message), "Pour ta première partie tu as un score de %lu secondes !", elapsedTime);
+    } else if(lastBestScore < elapsedTime){
         snprintf(summary_message, sizeof(summary_message), "Ton meilleur score est %lu secondes ! Tu dois encore gagner %lu secondes pour le dépasser !", lastBestScore, elapsedTime-lastBestScore);
     }else{
         snprintf(summary_message, sizeof(summary_message), "Incroyable, tu as battu ton meilleur score qui était de %lu secondes, tu as gagné %lu secondes !", lastBestScore, lastBestScore-elapsedTime);   
@@ -73,13 +75,15 @@ int winning_page() {
     gtk_widget_set_size_request(summary, 1200, 20);
     gtk_fixed_put(GTK_FIXED(fixed), summary, (config->windows_length) / 2 - 600, 150);
 
-    gchar summary_message2[256];
-    snprintf(summary_message2, sizeof(summary_message2), "Ton précédent score était %lu secondes", lastScore);
+    if (lastBestScore > 0){
+        gchar summary_message2[256];
+        snprintf(summary_message2, sizeof(summary_message2), "Ton précédent score était %lu secondes", lastScore);
 
-    summary2 = gtk_label_new(summary_message2);
-    gtk_widget_override_font(summary2, font_desc2);
-    gtk_widget_set_size_request(summary2, 1200, 20);
-    gtk_fixed_put(GTK_FIXED(fixed), summary2, (config->windows_length) / 2 - 600, 220);
+        summary2 = gtk_label_new(summary_message2);
+        gtk_widget_override_font(summary2, font_desc2);
+        gtk_widget_set_size_request(summary2, 1200, 20);
+        gtk_fixed_put(GTK_FIXED(fixed), summary2, (config->windows_length) / 2 - 600, 220);
+    }
         
     replay_button = gtk_button_new_with_label("Rejouer");
     gtk_fixed_put(GTK_FIXED(fixed), replay_button, 750, 500);
